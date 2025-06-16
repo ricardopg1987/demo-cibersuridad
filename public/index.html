@@ -102,13 +102,46 @@
             width: 15px;
             height: 15px;
             border-radius: 50%;
+            background: #f44336;
+            box-shadow: 0 0 10px #f44336;
+            transition: all 0.3s;
+        }
+        
+        .connection-indicator.connected {
             background: #4CAF50;
             box-shadow: 0 0 10px #4CAF50;
         }
         
-        .connection-indicator.disconnected {
-            background: #f44336;
-            box-shadow: 0 0 10px #f44336;
+        .qr-section {
+            margin: 20px 0;
+            padding: 20px;
+            background: rgba(255,255,255,0.9);
+            border-radius: 10px;
+            color: #333;
+            transition: all 0.3s;
+        }
+        
+        .error-message {
+            background: #ff4444;
+            color: white;
+            padding: 15px;
+            border-radius: 10px;
+            margin: 20px 0;
+            display: none;
+        }
+        
+        .loading {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid rgba(255,255,255,.3);
+            border-radius: 50%;
+            border-top-color: #fff;
+            animation: spin 1s ease-in-out infinite;
+        }
+        
+        @keyframes spin {
+            to { transform: rotate(360deg); }
         }
     </style>
 </head>
@@ -120,45 +153,41 @@
         <h1 class="title">🔒 Demo Ciberseguridad</h1>
         <p class="subtitle">Dispositivo conectado y listo</p>
         
-        <!-- Mostrar QR solo si hay pocos dispositivos conectados -->
-        <div id="qrSection" style="margin: 20px 0; padding: 20px; background: rgba(255,255,255,0.9); border-radius: 10px; color: #333;">
+        <div class="error-message" id="errorMessage">
+            Error de conexión. Verificando servidor...
+        </div>
+        
+        <div id="qrSection" class="qr-section">
             <p><strong>¡Comparte este QR con otros!</strong></p>
-            <div id="clientQR" style="margin: 10px auto; display: inline-block;"></div>
+            <div id="clientQR">
+                <div class="loading"></div>
+                <p>Generando QR...</p>
+            </div>
             <p style="font-size: 0.9em; margin-top: 10px;">Escanea para unirte a la demo</p>
         </div>
         
         <div class="status" id="statusMessage">
-            Esperando comandos del presentador...
+            <span class="loading"></span> Conectando al servidor...
         </div>
     </div>
 
-    <script src="/socket.io/socket.io.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.7.2/socket.io.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcode/1.5.3/qrcode.min.js"></script>
     <script>
-        const socket = io();
-        const body = document.body;
-        const container = document.getElementById('mainContainer');
-        const statusMessage = document.getElementById('statusMessage');
-        const connectionIndicator = document.getElementById('connectionIndicator');
-        const matrixCanvas = document.getElementById('matrixCanvas');
-        const ctx = matrixCanvas.getContext('2d');
-        
+        // Variables globales
+        let socket;
         let isHackMode = false;
         let matrixEffect = null;
         let deviceCount = 0;
         
-        // Generar QR code para compartir
-        const currentUrl = window.location.origin;
-        QRCode.toCanvas(document.getElementById('clientQR'), currentUrl, { 
-            width: 150,
-            margin: 1,
-            color: {
-                dark: '#000000',
-                light: '#FFFFFF'
-            }
-        }, (error) => {
-            if (error) console.error('Error generando QR:', error);
-        });
+        // Elementos del DOM
+        const body = document.body;
+        const container = document.getElementById('mainContainer');
+        const statusMessage = document.getElementById('statusMessage');
+        const connectionIndicator = document.getElementById('connectionIndicator');
+        const errorMessage = document.getElementById('errorMessage');
+        const matrixCanvas = document.getElementById('matrixCanvas');
+        const ctx = matrixCanvas.getContext('2d');
         
         // Configurar canvas
         function resizeCanvas() {
@@ -205,96 +234,187 @@
         // Función de vibración
         function vibrateDevice(pattern = [200]) {
             if ('vibrate' in navigator) {
-                navigator.vibrate(pattern);
+                try {
+                    navigator.vibrate(pattern);
+                    return true;
+                } catch (e) {
+                    console.log('Error en vibración:', e);
+                    return false;
+                }
+            }
+            return false;
+        }
+        
+        // Generar QR code
+        function generateQR() {
+            try {
+                const currentUrl = window.location.origin;
+                const qrContainer = document.getElementById('clientQR');
+                
+                // Limpiar contenido anterior
+                qrContainer.innerHTML = '';
+                
+                QRCode.toCanvas(qrContainer, currentUrl, {
+                    width: 150,
+                    margin: 1,
+                    color: {
+                        dark: '#000000',
+                        light: '#FFFFFF'
+                    }
+                }, (error) => {
+                    if (error) {
+                        console.error('Error generando QR:', error);
+                        qrContainer.innerHTML = '<p style="color: #666;">Error generando QR</p>';
+                    }
+                });
+            } catch (error) {
+                console.error('Error con QRCode:', error);
+                document.getElementById('qrSection').style.display = 'none';
             }
         }
         
-        // Identificarse como cliente
-        socket.emit('identify', { type: 'client' });
-        
-        // Eventos del socket
-        socket.on('connect', () => {
-            connectionIndicator.classList.remove('disconnected');
-            statusMessage.textContent = 'Conectado - Esperando comandos...';
-        });
-        
-        socket.on('disconnect', () => {
-            connectionIndicator.classList.add('disconnected');
-            statusMessage.textContent = 'Desconectado - Reintentando...';
-        });
-        
-        socket.on('deviceCount', (count) => {
-            deviceCount = count;
-            // Ocultar QR si hay muchos dispositivos conectados
-            const qrSection = document.getElementById('qrSection');
-            if (count > 5) {
-                qrSection.style.display = 'none';
-            } else {
-                qrSection.style.display = 'block';
-            }
-        });
-        
-        socket.on('changeColor', (data) => {
-            body.style.background = data.color;
-            statusMessage.textContent = `Color cambiado: ${data.color}`;
-        });
-        
-        socket.on('vibrate', (data) => {
-            const pattern = data.pattern || [200];
-            vibrateDevice(pattern);
-            statusMessage.textContent = 'Dispositivo vibrando...';
-            
-            // Efecto visual de vibración
-            container.style.transform = 'translateX(5px)';
-            setTimeout(() => {
-                container.style.transform = 'translateX(-5px)';
-                setTimeout(() => {
-                    container.style.transform = 'translateX(0)';
-                }, 50);
-            }, 50);
-        });
-        
-        socket.on('startDemo', () => {
-            isHackMode = true;
-            body.classList.add('hack-mode');
-            container.classList.add('hack-effect');
-            matrixCanvas.classList.add('active');
-            startMatrixEffect();
-            statusMessage.textContent = '⚠️ SISTEMA COMPROMETIDO ⚠️';
-            vibrateDevice([100, 50, 100, 50, 100]);
-        });
-        
-        socket.on('stopDemo', () => {
-            isHackMode = false;
-            body.classList.remove('hack-mode');
-            container.classList.remove('hack-effect');
-            matrixCanvas.classList.remove('active');
-            stopMatrixEffect();
-            body.style.background = 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)';
-            statusMessage.textContent = 'Demo finalizada - Sistema restaurado';
-        });
-        
-        socket.on('hackEffect', (data) => {
-            // Efecto de hack intenso
-            vibrateDevice([50, 50, 50, 50, 50, 50]);
-            
-            const colors = ['#ff0000', '#00ff00', '#0000ff', '#ffff00', '#ff00ff', '#00ffff'];
-            let colorIndex = 0;
-            
-            const hackInterval = setInterval(() => {
-                body.style.background = colors[colorIndex % colors.length];
-                colorIndex++;
-            }, 100);
-            
-            setTimeout(() => {
-                clearInterval(hackInterval);
-                if (!isHackMode) {
+        // Inicializar Socket.IO
+        function initializeSocket() {
+            try {
+                socket = io({
+                    transports: ['websocket', 'polling'],
+                    timeout: 10000,
+                    forceNew: true,
+                    reconnection: true,
+                    reconnectionDelay: 1000,
+                    reconnectionAttempts: 5
+                });
+                
+                // Identificarse como cliente
+                socket.emit('identify', { type: 'client' });
+                
+                // Eventos de conexión
+                socket.on('connect', () => {
+                    console.log('Conectado al servidor');
+                    connectionIndicator.classList.add('connected');
+                    statusMessage.innerHTML = '✅ Conectado - Esperando comandos...';
+                    errorMessage.style.display = 'none';
+                });
+                
+                socket.on('disconnect', (reason) => {
+                    console.log('Desconectado:', reason);
+                    connectionIndicator.classList.remove('connected');
+                    statusMessage.innerHTML = `<span class="loading"></span> Desconectado (${reason}) - Reintentando...`;
+                });
+                
+                socket.on('connect_error', (error) => {
+                    console.error('Error de conexión:', error);
+                    errorMessage.style.display = 'block';
+                    errorMessage.textContent = `Error de conexión: ${error.message}`;
+                    statusMessage.innerHTML = '<span class="loading"></span> Error de conexión - Reintentando...';
+                });
+                
+                socket.on('reconnect', (attemptNumber) => {
+                    console.log('Reconectado después de', attemptNumber, 'intentos');
+                    statusMessage.innerHTML = '🔄 Reconectado exitosamente';
+                });
+                
+                // Eventos de la aplicación
+                socket.on('deviceCount', (count) => {
+                    deviceCount = count;
+                    const qrSection = document.getElementById('qrSection');
+                    if (count > 5) {
+                        qrSection.style.display = 'none';
+                    } else {
+                        qrSection.style.display = 'block';
+                    }
+                });
+                
+                socket.on('changeColor', (data) => {
+                    body.style.background = data.color;
+                    statusMessage.textContent = `🎨 Color cambiado: ${data.color}`;
+                });
+                
+                socket.on('vibrate', (data) => {
+                    const pattern = data.pattern || [200];
+                    const vibrated = vibrateDevice(pattern);
+                    statusMessage.textContent = vibrated ? '📳 Dispositivo vibrando...' : '📳 Vibración no soportada';
+                    
+                    // Efecto visual de vibración
+                    container.style.transform = 'translateX(5px)';
+                    setTimeout(() => {
+                        container.style.transform = 'translateX(-5px)';
+                        setTimeout(() => {
+                            container.style.transform = 'translateX(0)';
+                        }, 50);
+                    }, 50);
+                });
+                
+                socket.on('startDemo', () => {
+                    isHackMode = true;
+                    body.classList.add('hack-mode');
+                    container.classList.add('hack-effect');
+                    matrixCanvas.classList.add('active');
+                    startMatrixEffect();
+                    statusMessage.textContent = '⚠️ SISTEMA COMPROMETIDO ⚠️';
+                    vibrateDevice([100, 50, 100, 50, 100]);
+                });
+                
+                socket.on('stopDemo', () => {
+                    isHackMode = false;
+                    body.classList.remove('hack-mode');
+                    container.classList.remove('hack-effect');
+                    matrixCanvas.classList.remove('active');
+                    stopMatrixEffect();
                     body.style.background = 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)';
-                }
-            }, data.duration || 3000);
+                    statusMessage.textContent = '✅ Demo finalizada - Sistema restaurado';
+                });
+                
+                socket.on('hackEffect', (data) => {
+                    vibrateDevice([50, 50, 50, 50, 50, 50]);
+                    
+                    const colors = ['#ff0000', '#00ff00', '#0000ff', '#ffff00', '#ff00ff', '#00ffff'];
+                    let colorIndex = 0;
+                    
+                    const hackInterval = setInterval(() => {
+                        body.style.background = colors[colorIndex % colors.length];
+                        colorIndex++;
+                    }, 100);
+                    
+                    setTimeout(() => {
+                        clearInterval(hackInterval);
+                        if (!isHackMode) {
+                            body.style.background = 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)';
+                        }
+                    }, data.duration || 3000);
+                    
+                    statusMessage.textContent = '💀 HACK EN PROGRESO 💀';
+                });
+                
+            } catch (error) {
+                console.error('Error inicializando Socket.IO:', error);
+                errorMessage.style.display = 'block';
+                errorMessage.textContent = 'Error inicializando la aplicación';
+            }
+        }
+        
+        // Verificar dependencias y inicializar
+        function init() {
+            if (typeof io === 'undefined') {
+                errorMessage.style.display = 'block';
+                errorMessage.textContent = 'Error: Socket.IO no se pudo cargar';
+                statusMessage.textContent = '❌ Error cargando dependencias';
+                return;
+            }
             
-            statusMessage.textContent = '💀 HACK EN PROGRESO 💀';
-        });
+            if (typeof QRCode === 'undefined') {
+                errorMessage.style.display = 'block';
+                errorMessage.textContent = 'Error: QRCode no se pudo cargar';
+                statusMessage.textContent = '❌ Error cargando QRCode';
+                return;
+            }
+            
+            // Generar QR
+            generateQR();
+            
+            // Inicializar Socket.IO
+            initializeSocket();
+        }
         
         // Evitar zoom en dispositivos móviles
         document.addEventListener('touchstart', (e) => {
@@ -311,6 +431,13 @@
             }
             lastTouchEnd = now;
         }, false);
+        
+        // Inicializar cuando el DOM esté listo
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', init);
+        } else {
+            init();
+        }
     </script>
 </body>
 </html>

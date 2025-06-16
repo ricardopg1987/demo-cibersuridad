@@ -99,6 +99,13 @@
             transform: translateY(0);
         }
         
+        .button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+        
         .button.danger {
             background: linear-gradient(135deg, #ff416c 0%, #ff4b2b 100%);
         }
@@ -125,10 +132,12 @@
             border-radius: 5px;
             cursor: pointer;
             transition: transform 0.2s;
+            border: 2px solid rgba(255,255,255,0.2);
         }
         
         .color-btn:hover {
             transform: scale(1.1);
+            border-color: rgba(255,255,255,0.5);
         }
         
         .vibration-controls {
@@ -170,6 +179,7 @@
             padding: 10px 20px;
             border-radius: 20px;
             font-weight: bold;
+            z-index: 1000;
         }
         
         .connected {
@@ -180,6 +190,7 @@
         .disconnected {
             background: #f44336;
             color: white;
+            animation: pulse 1s infinite;
         }
         
         .advanced-controls {
@@ -219,6 +230,7 @@
             padding: 20px;
             background: #2a2a2a;
             border-radius: 10px;
+            border: 2px solid #333;
         }
         
         #qrcode {
@@ -228,23 +240,63 @@
             background: white;
             border-radius: 10px;
         }
+        
+        .url-display {
+            margin-top: 15px;
+            padding: 10px;
+            background: #333;
+            border-radius: 5px;
+            font-family: monospace;
+            word-break: break-all;
+            font-size: 0.9rem;
+        }
+        
+        .loading {
+            display: inline-block;
+            width: 15px;
+            height: 15px;
+            border: 2px solid rgba(255,255,255,.3);
+            border-radius: 50%;
+            border-top-color: #fff;
+            animation: spin 1s ease-in-out infinite;
+            margin-right: 10px;
+        }
+        
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+        
+        .error-message {
+            background: #ff4444;
+            color: white;
+            padding: 15px;
+            border-radius: 10px;
+            margin: 20px 0;
+            display: none;
+        }
     </style>
 </head>
 <body>
-    <div class="connection-status" id="connectionStatus">Desconectado</div>
+    <div class="connection-status disconnected" id="connectionStatus">
+        <span class="loading"></span> Conectando...
+    </div>
     
     <div class="header">
         <h1>🔒 Panel de Control - Demo Ciberseguridad</h1>
         <p>Controla la experiencia de los dispositivos conectados</p>
     </div>
     
+    <div class="error-message" id="errorMessage">
+        Error de conexión. Verificando servidor...
+    </div>
+    
     <div class="stats">
         <div class="stat-card">
-            <div class="stat-number" id="deviceCount">0</div>
+            <div class="stat-number" id="deviceCount">-</div>
             <div class="stat-label">Dispositivos Conectados</div>
         </div>
         <div class="stat-card">
-            <div class="stat-number" id="demoStatus">INACTIVA</div>
+            <div class="stat-number" id="demoStatus">-</div>
             <div class="stat-label">Estado de Demo</div>
         </div>
     </div>
@@ -257,35 +309,37 @@
         <!-- Control Principal -->
         <div class="control-section">
             <h3 class="section-title">Control Principal</h3>
-            <button class="button danger" onclick="startDemo()">🚨 Iniciar Demo de Hack</button>
-            <button class="button success" onclick="stopDemo()">✅ Detener Demo</button>
-            <button class="button warning" onclick="hackEffect()">💀 Efecto Hack Intenso</button>
+            <button class="button danger" id="startDemoBtn" onclick="startDemo()">🚨 Iniciar Demo de Hack</button>
+            <button class="button success" id="stopDemoBtn" onclick="stopDemo()">✅ Detener Demo</button>
+            <button class="button warning" id="hackEffectBtn" onclick="hackEffect()">💀 Efecto Hack Intenso</button>
         </div>
         
         <!-- Control de Colores -->
         <div class="control-section">
             <h3 class="section-title">Control de Colores</h3>
             <div class="color-grid">
-                <button class="color-btn" style="background: #ff0000" onclick="changeColor('#ff0000')"></button>
-                <button class="color-btn" style="background: #00ff00" onclick="changeColor('#00ff00')"></button>
-                <button class="color-btn" style="background: #0000ff" onclick="changeColor('#0000ff')"></button>
-                <button class="color-btn" style="background: #ffff00" onclick="changeColor('#ffff00')"></button>
-                <button class="color-btn" style="background: #ff00ff" onclick="changeColor('#ff00ff')"></button>
-                <button class="color-btn" style="background: #00ffff" onclick="changeColor('#00ffff')"></button>
-                <button class="color-btn" style="background: #ffffff" onclick="changeColor('#ffffff')"></button>
-                <button class="color-btn" style="background: #000000" onclick="changeColor('#000000')"></button>
+                <button class="color-btn" style="background: #ff0000" onclick="changeColor('#ff0000')" title="Rojo"></button>
+                <button class="color-btn" style="background: #00ff00" onclick="changeColor('#00ff00')" title="Verde"></button>
+                <button class="color-btn" style="background: #0000ff" onclick="changeColor('#0000ff')" title="Azul"></button>
+                <button class="color-btn" style="background: #ffff00" onclick="changeColor('#ffff00')" title="Amarillo"></button>
+                <button class="color-btn" style="background: #ff00ff" onclick="changeColor('#ff00ff')" title="Magenta"></button>
+                <button class="color-btn" style="background: #00ffff" onclick="changeColor('#00ffff')" title="Cian"></button>
+                <button class="color-btn" style="background: #ffffff" onclick="changeColor('#ffffff')" title="Blanco"></button>
+                <button class="color-btn" style="background: #000000" onclick="changeColor('#000000')" title="Negro"></button>
             </div>
             <button class="button" onclick="randomColors()">🎨 Colores Aleatorios</button>
+            <button class="button" onclick="resetColors()">🔄 Restaurar Original</button>
         </div>
         
         <!-- Control de Vibración -->
         <div class="control-section">
             <h3 class="section-title">Control de Vibración</h3>
             <div class="vibration-controls">
-                <button class="button" onclick="vibrate([200])">Vibración Corta</button>
-                <button class="button" onclick="vibrate([500])">Vibración Larga</button>
-                <button class="button" onclick="vibrate([100, 100, 100])">Triple Vibración</button>
-                <button class="button" onclick="vibrate([50, 50, 50, 50, 50])">Vibración Rápida</button>
+                <button class="button" onclick="vibrate([200])">📳 Vibración Corta</button>
+                <button class="button" onclick="vibrate([500])">📳 Vibración Larga</button>
+                <button class="button" onclick="vibrate([100, 100, 100])">📳 Triple Vibración</button>
+                <button class="button" onclick="vibrate([50, 50, 50, 50, 50])">📳 Vibración Rápida</button>
+                <button class="button" onclick="vibrate([200, 100, 200, 100, 200])">📳 Patrón SOS</button>
             </div>
         </div>
         
@@ -298,90 +352,193 @@
                     <input type="range" min="1" max="10" value="3" class="slider" id="hackDuration" 
                            oninput="document.getElementById('hackDurationValue').textContent = this.value">
                 </div>
-                <button class="button" onclick="customHackEffect()">Ejecutar Hack Personalizado</button>
+                <button class="button" onclick="customHackEffect()">⚡ Ejecutar Hack Personalizado</button>
+                <button class="button" onclick="emergencyStop()">🛑 Parada de Emergencia</button>
             </div>
         </div>
     </div>
     
     <!-- Sección QR -->
     <div class="qr-section">
-        <h3>Código QR para Conectar Dispositivos</h3>
+        <h3>📱 Código QR para Conectar Dispositivos</h3>
         <p>Los usuarios deben escanear este código para unirse a la demo</p>
-        <div id="qrcode"></div>
-        <p><strong>URL:</strong> <span id="currentUrl"></span></p>
+        <div id="qrcode">
+            <div class="loading"></div>
+            <p>Generando QR...</p>
+        </div>
+        <div class="url-display">
+            <strong>URL:</strong> <span id="currentUrl">Cargando...</span>
+        </div>
+        <button class="button" onclick="openQRPage()">🖥️ Abrir QR en Pantalla Grande</button>
     </div>
 
-    <script src="/socket.io/socket.io.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.7.2/socket.io.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcode/1.5.3/qrcode.min.js"></script>
     <script>
-        const socket = io();
+        // Variables globales
+        let socket;
         let isDemoActive = false;
+        let isConnected = false;
         
-        // Identificarse como controlador
-        socket.emit('identify', { type: 'controller' });
+        // Elementos del DOM
+        const connectionStatus = document.getElementById('connectionStatus');
+        const errorMessage = document.getElementById('errorMessage');
+        const deviceCountEl = document.getElementById('deviceCount');
+        const demoStatusEl = document.getElementById('demoStatus');
+        const demoIndicator = document.getElementById('demoIndicator');
+        
+        // Botones principales
+        const startDemoBtn = document.getElementById('startDemoBtn');
+        const stopDemoBtn = document.getElementById('stopDemoBtn');
+        const hackEffectBtn = document.getElementById('hackEffectBtn');
         
         // Generar QR code
-        const currentUrl = window.location.origin;
-        document.getElementById('currentUrl').textContent = currentUrl;
-        QRCode.toCanvas(document.getElementById('qrcode'), currentUrl, { width: 200 }, (error) => {
-            if (error) console.error(error);
-        });
+        function generateQR() {
+            try {
+                const currentUrl = window.location.origin;
+                document.getElementById('currentUrl').textContent = currentUrl;
+                
+                const qrContainer = document.getElementById('qrcode');
+                qrContainer.innerHTML = '';
+                
+                QRCode.toCanvas(qrContainer, currentUrl, { 
+                    width: 200,
+                    margin: 2,
+                    color: {
+                        dark: '#000000',
+                        light: '#FFFFFF'
+                    }
+                }, (error) => {
+                    if (error) {
+                        console.error('Error generando QR:', error);
+                        qrContainer.innerHTML = '<p style="color: #666;">Error generando QR</p>';
+                    }
+                });
+            } catch (error) {
+                console.error('Error con QRCode:', error);
+                document.getElementById('qrcode').innerHTML = '<p style="color: #666;">QRCode no disponible</p>';
+            }
+        }
         
-        // Eventos del socket
-        socket.on('connect', () => {
-            document.getElementById('connectionStatus').textContent = 'Conectado';
-            document.getElementById('connectionStatus').className = 'connection-status connected';
-        });
+        // Inicializar Socket.IO
+        function initializeSocket() {
+            try {
+                socket = io({
+                    transports: ['websocket', 'polling'],
+                    timeout: 10000,
+                    forceNew: true,
+                    reconnection: true,
+                    reconnectionDelay: 1000,
+                    reconnectionAttempts: 10
+                });
+                
+                // Identificarse como controlador
+                socket.emit('identify', { type: 'controller' });
+                
+                // Eventos de conexión
+                socket.on('connect', () => {
+                    console.log('Conectado al servidor');
+                    isConnected = true;
+                    connectionStatus.className = 'connection-status connected';
+                    connectionStatus.textContent = '✅ Conectado';
+                    errorMessage.style.display = 'none';
+                    enableButtons();
+                });
+                
+                socket.on('disconnect', (reason) => {
+                    console.log('Desconectado:', reason);
+                    isConnected = false;
+                    connectionStatus.className = 'connection-status disconnected';
+                    connectionStatus.innerHTML = '<span class="loading"></span> Desconectado - Reintentando...';
+                    disableButtons();
+                });
+                
+                socket.on('connect_error', (error) => {
+                    console.error('Error de conexión:', error);
+                    isConnected = false;
+                    errorMessage.style.display = 'block';
+                    errorMessage.textContent = `Error de conexión: ${error.message}`;
+                    connectionStatus.innerHTML = '<span class="loading"></span> Error de conexión';
+                    disableButtons();
+                });
+                
+                socket.on('reconnect', (attemptNumber) => {
+                    console.log('Reconectado después de', attemptNumber, 'intentos');
+                    connectionStatus.textContent = '🔄 Reconectado';
+                });
+                
+                // Eventos de la aplicación
+                socket.on('deviceCount', (count) => {
+                    deviceCountEl.textContent = count;
+                });
+                
+                socket.on('demoStatus', (status) => {
+                    isDemoActive = status.active;
+                    updateDemoStatus();
+                });
+                
+            } catch (error) {
+                console.error('Error inicializando Socket.IO:', error);
+                errorMessage.style.display = 'block';
+                errorMessage.textContent = 'Error inicializando Socket.IO';
+            }
+        }
         
-        socket.on('disconnect', () => {
-            document.getElementById('connectionStatus').textContent = 'Desconectado';
-            document.getElementById('connectionStatus').className = 'connection-status disconnected';
-        });
+        // Habilitar/deshabilitar botones
+        function enableButtons() {
+            const buttons = document.querySelectorAll('.button');
+            buttons.forEach(btn => btn.disabled = false);
+        }
         
-        socket.on('deviceCount', (count) => {
-            document.getElementById('deviceCount').textContent = count;
-        });
+        function disableButtons() {
+            const buttons = document.querySelectorAll('.button');
+            buttons.forEach(btn => btn.disabled = true);
+        }
         
-        socket.on('demoStatus', (status) => {
-            isDemoActive = status.active;
-            updateDemoStatus();
-        });
-        
+        // Actualizar estado de la demo
         function updateDemoStatus() {
-            const statusElement = document.getElementById('demoStatus');
-            const indicatorElement = document.getElementById('demoIndicator');
-            
             if (isDemoActive) {
-                statusElement.textContent = 'ACTIVA';
-                statusElement.style.color = '#ff4444';
-                indicatorElement.className = 'demo-status demo-active';
-                indicatorElement.textContent = '🚨 Demo Activa - Los dispositivos están siendo "hackeados"';
+                demoStatusEl.textContent = 'ACTIVA';
+                demoStatusEl.style.color = '#ff4444';
+                demoIndicator.className = 'demo-status demo-active';
+                demoIndicator.textContent = '🚨 Demo Activa - Los dispositivos están siendo "hackeados"';
+                startDemoBtn.textContent = '⏸️ Demo en Curso';
+                startDemoBtn.disabled = true;
+                stopDemoBtn.disabled = false;
             } else {
-                statusElement.textContent = 'INACTIVA';
-                statusElement.style.color = '#4CAF50';
-                indicatorElement.className = 'demo-status demo-inactive';
-                indicatorElement.textContent = '✅ Demo Inactiva - Los dispositivos están en modo normal';
+                demoStatusEl.textContent = 'INACTIVA';
+                demoStatusEl.style.color = '#4CAF50';
+                demoIndicator.className = 'demo-status demo-inactive';
+                demoIndicator.textContent = '✅ Demo Inactiva - Los dispositivos están en modo normal';
+                startDemoBtn.textContent = '🚨 Iniciar Demo de Hack';
+                startDemoBtn.disabled = false;
+                stopDemoBtn.disabled = true;
             }
         }
         
         // Funciones de control
         function startDemo() {
+            if (!isConnected) return;
             socket.emit('startDemo');
         }
         
         function stopDemo() {
+            if (!isConnected) return;
             socket.emit('stopDemo');
         }
         
         function changeColor(color) {
+            if (!isConnected) return;
             socket.emit('changeColor', { color: color });
         }
         
         function vibrate(pattern) {
+            if (!isConnected) return;
             socket.emit('vibrate', { pattern: pattern });
         }
         
         function hackEffect() {
+            if (!isConnected) return;
             const duration = document.getElementById('hackDuration').value * 1000;
             socket.emit('hackEffect', { duration: duration });
         }
@@ -396,8 +553,60 @@
             changeColor(randomColor);
         }
         
-        // Inicializar estado
-        updateDemoStatus();
+        function resetColors() {
+            changeColor('linear-gradient(135deg, #667eea 0%, #764ba2 100%)');
+        }
+        
+        function emergencyStop() {
+            if (!isConnected) return;
+            stopDemo();
+            resetColors();
+            setTimeout(() => {
+                vibrate([100]);
+            }, 500);
+        }
+        
+        function openQRPage() {
+            window.open('/qr', '_blank');
+        }
+        
+        // Verificar dependencias y inicializar
+        function init() {
+            if (typeof io === 'undefined') {
+                errorMessage.style.display = 'block';
+                errorMessage.textContent = 'Error: Socket.IO no se pudo cargar';
+                connectionStatus.textContent = '❌ Error cargando Socket.IO';
+                return;
+            }
+            
+            if (typeof QRCode === 'undefined') {
+                console.warn('QRCode no disponible, continuando sin QR');
+                document.getElementById('qrcode').innerHTML = '<p style="color: #666;">QRCode no disponible</p>';
+            } else {
+                generateQR();
+            }
+            
+            // Inicializar Socket.IO
+            initializeSocket();
+            
+            // Estado inicial
+            updateDemoStatus();
+            disableButtons();
+        }
+        
+        // Actualizar estadísticas periódicamente
+        setInterval(() => {
+            if (socket && socket.connected) {
+                socket.emit('requestStats');
+            }
+        }, 5000);
+        
+        // Inicializar cuando el DOM esté listo
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', init);
+        } else {
+            init();
+        }
     </script>
 </body>
 </html>
