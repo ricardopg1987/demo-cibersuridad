@@ -1,0 +1,403 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Panel de Control - Demo Ciberseguridad</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Arial', sans-serif;
+            background: #1a1a1a;
+            color: #fff;
+            padding: 20px;
+            min-height: 100vh;
+        }
+        
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+            padding: 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 10px;
+        }
+        
+        .stats {
+            display: flex;
+            justify-content: space-around;
+            margin-bottom: 30px;
+            flex-wrap: wrap;
+        }
+        
+        .stat-card {
+            background: #2a2a2a;
+            padding: 20px;
+            border-radius: 10px;
+            text-align: center;
+            min-width: 150px;
+            margin: 10px;
+            border: 2px solid #333;
+        }
+        
+        .stat-number {
+            font-size: 2.5rem;
+            font-weight: bold;
+            color: #4CAF50;
+        }
+        
+        .stat-label {
+            font-size: 1rem;
+            opacity: 0.8;
+            margin-top: 5px;
+        }
+        
+        .controls {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+        }
+        
+        .control-section {
+            background: #2a2a2a;
+            padding: 20px;
+            border-radius: 10px;
+            border: 2px solid #333;
+        }
+        
+        .section-title {
+            font-size: 1.3rem;
+            margin-bottom: 15px;
+            color: #4CAF50;
+            border-bottom: 1px solid #333;
+            padding-bottom: 10px;
+        }
+        
+        .button {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border: none;
+            color: white;
+            padding: 12px 24px;
+            font-size: 1rem;
+            border-radius: 5px;
+            cursor: pointer;
+            margin: 5px;
+            transition: transform 0.2s, box-shadow 0.2s;
+            min-width: 120px;
+        }
+        
+        .button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+        }
+        
+        .button:active {
+            transform: translateY(0);
+        }
+        
+        .button.danger {
+            background: linear-gradient(135deg, #ff416c 0%, #ff4b2b 100%);
+        }
+        
+        .button.success {
+            background: linear-gradient(135deg, #4CAF50 0%, #45a049 100%);
+        }
+        
+        .button.warning {
+            background: linear-gradient(135deg, #ff9800 0%, #f57c00 100%);
+        }
+        
+        .color-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 10px;
+            margin-top: 10px;
+        }
+        
+        .color-btn {
+            width: 50px;
+            height: 50px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+        
+        .color-btn:hover {
+            transform: scale(1.1);
+        }
+        
+        .vibration-controls {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-top: 10px;
+        }
+        
+        .demo-status {
+            text-align: center;
+            padding: 15px;
+            border-radius: 10px;
+            margin: 20px 0;
+            font-weight: bold;
+            font-size: 1.2rem;
+        }
+        
+        .demo-active {
+            background: #ff4444;
+            color: white;
+            animation: pulse 1s infinite;
+        }
+        
+        .demo-inactive {
+            background: #4CAF50;
+            color: white;
+        }
+        
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.7; }
+        }
+        
+        .connection-status {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: 10px 20px;
+            border-radius: 20px;
+            font-weight: bold;
+        }
+        
+        .connected {
+            background: #4CAF50;
+            color: white;
+        }
+        
+        .disconnected {
+            background: #f44336;
+            color: white;
+        }
+        
+        .advanced-controls {
+            margin-top: 20px;
+        }
+        
+        .slider-container {
+            margin: 15px 0;
+        }
+        
+        .slider {
+            width: 100%;
+            height: 5px;
+            border-radius: 5px;
+            background: #333;
+            outline: none;
+            opacity: 0.7;
+            transition: opacity 0.2s;
+        }
+        
+        .slider:hover {
+            opacity: 1;
+        }
+        
+        .slider::-webkit-slider-thumb {
+            appearance: none;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: #4CAF50;
+            cursor: pointer;
+        }
+        
+        .qr-section {
+            text-align: center;
+            margin-top: 20px;
+            padding: 20px;
+            background: #2a2a2a;
+            border-radius: 10px;
+        }
+        
+        #qrcode {
+            margin: 20px auto;
+            display: inline-block;
+            padding: 20px;
+            background: white;
+            border-radius: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="connection-status" id="connectionStatus">Desconectado</div>
+    
+    <div class="header">
+        <h1>🔒 Panel de Control - Demo Ciberseguridad</h1>
+        <p>Controla la experiencia de los dispositivos conectados</p>
+    </div>
+    
+    <div class="stats">
+        <div class="stat-card">
+            <div class="stat-number" id="deviceCount">0</div>
+            <div class="stat-label">Dispositivos Conectados</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-number" id="demoStatus">INACTIVA</div>
+            <div class="stat-label">Estado de Demo</div>
+        </div>
+    </div>
+    
+    <div class="demo-status demo-inactive" id="demoIndicator">
+        Demo Inactiva - Los dispositivos están en modo normal
+    </div>
+    
+    <div class="controls">
+        <!-- Control Principal -->
+        <div class="control-section">
+            <h3 class="section-title">Control Principal</h3>
+            <button class="button danger" onclick="startDemo()">🚨 Iniciar Demo de Hack</button>
+            <button class="button success" onclick="stopDemo()">✅ Detener Demo</button>
+            <button class="button warning" onclick="hackEffect()">💀 Efecto Hack Intenso</button>
+        </div>
+        
+        <!-- Control de Colores -->
+        <div class="control-section">
+            <h3 class="section-title">Control de Colores</h3>
+            <div class="color-grid">
+                <button class="color-btn" style="background: #ff0000" onclick="changeColor('#ff0000')"></button>
+                <button class="color-btn" style="background: #00ff00" onclick="changeColor('#00ff00')"></button>
+                <button class="color-btn" style="background: #0000ff" onclick="changeColor('#0000ff')"></button>
+                <button class="color-btn" style="background: #ffff00" onclick="changeColor('#ffff00')"></button>
+                <button class="color-btn" style="background: #ff00ff" onclick="changeColor('#ff00ff')"></button>
+                <button class="color-btn" style="background: #00ffff" onclick="changeColor('#00ffff')"></button>
+                <button class="color-btn" style="background: #ffffff" onclick="changeColor('#ffffff')"></button>
+                <button class="color-btn" style="background: #000000" onclick="changeColor('#000000')"></button>
+            </div>
+            <button class="button" onclick="randomColors()">🎨 Colores Aleatorios</button>
+        </div>
+        
+        <!-- Control de Vibración -->
+        <div class="control-section">
+            <h3 class="section-title">Control de Vibración</h3>
+            <div class="vibration-controls">
+                <button class="button" onclick="vibrate([200])">Vibración Corta</button>
+                <button class="button" onclick="vibrate([500])">Vibración Larga</button>
+                <button class="button" onclick="vibrate([100, 100, 100])">Triple Vibración</button>
+                <button class="button" onclick="vibrate([50, 50, 50, 50, 50])">Vibración Rápida</button>
+            </div>
+        </div>
+        
+        <!-- Controles Avanzados -->
+        <div class="control-section">
+            <h3 class="section-title">Controles Avanzados</h3>
+            <div class="advanced-controls">
+                <div class="slider-container">
+                    <label>Duración del Efecto Hack (segundos): <span id="hackDurationValue">3</span></label>
+                    <input type="range" min="1" max="10" value="3" class="slider" id="hackDuration" 
+                           oninput="document.getElementById('hackDurationValue').textContent = this.value">
+                </div>
+                <button class="button" onclick="customHackEffect()">Ejecutar Hack Personalizado</button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Sección QR -->
+    <div class="qr-section">
+        <h3>Código QR para Conectar Dispositivos</h3>
+        <p>Los usuarios deben escanear este código para unirse a la demo</p>
+        <div id="qrcode"></div>
+        <p><strong>URL:</strong> <span id="currentUrl"></span></p>
+    </div>
+
+    <script src="/socket.io/socket.io.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcode/1.5.3/qrcode.min.js"></script>
+    <script>
+        const socket = io();
+        let isDemoActive = false;
+        
+        // Identificarse como controlador
+        socket.emit('identify', { type: 'controller' });
+        
+        // Generar QR code
+        const currentUrl = window.location.origin;
+        document.getElementById('currentUrl').textContent = currentUrl;
+        QRCode.toCanvas(document.getElementById('qrcode'), currentUrl, { width: 200 }, (error) => {
+            if (error) console.error(error);
+        });
+        
+        // Eventos del socket
+        socket.on('connect', () => {
+            document.getElementById('connectionStatus').textContent = 'Conectado';
+            document.getElementById('connectionStatus').className = 'connection-status connected';
+        });
+        
+        socket.on('disconnect', () => {
+            document.getElementById('connectionStatus').textContent = 'Desconectado';
+            document.getElementById('connectionStatus').className = 'connection-status disconnected';
+        });
+        
+        socket.on('deviceCount', (count) => {
+            document.getElementById('deviceCount').textContent = count;
+        });
+        
+        socket.on('demoStatus', (status) => {
+            isDemoActive = status.active;
+            updateDemoStatus();
+        });
+        
+        function updateDemoStatus() {
+            const statusElement = document.getElementById('demoStatus');
+            const indicatorElement = document.getElementById('demoIndicator');
+            
+            if (isDemoActive) {
+                statusElement.textContent = 'ACTIVA';
+                statusElement.style.color = '#ff4444';
+                indicatorElement.className = 'demo-status demo-active';
+                indicatorElement.textContent = '🚨 Demo Activa - Los dispositivos están siendo "hackeados"';
+            } else {
+                statusElement.textContent = 'INACTIVA';
+                statusElement.style.color = '#4CAF50';
+                indicatorElement.className = 'demo-status demo-inactive';
+                indicatorElement.textContent = '✅ Demo Inactiva - Los dispositivos están en modo normal';
+            }
+        }
+        
+        // Funciones de control
+        function startDemo() {
+            socket.emit('startDemo');
+        }
+        
+        function stopDemo() {
+            socket.emit('stopDemo');
+        }
+        
+        function changeColor(color) {
+            socket.emit('changeColor', { color: color });
+        }
+        
+        function vibrate(pattern) {
+            socket.emit('vibrate', { pattern: pattern });
+        }
+        
+        function hackEffect() {
+            const duration = document.getElementById('hackDuration').value * 1000;
+            socket.emit('hackEffect', { duration: duration });
+        }
+        
+        function customHackEffect() {
+            hackEffect();
+        }
+        
+        function randomColors() {
+            const colors = ['#ff0000', '#00ff00', '#0000ff', '#ffff00', '#ff00ff', '#00ffff', '#ffffff', '#000000'];
+            const randomColor = colors[Math.floor(Math.random() * colors.length)];
+            changeColor(randomColor);
+        }
+        
+        // Inicializar estado
+        updateDemoStatus();
+    </script>
+</body>
+</html>
