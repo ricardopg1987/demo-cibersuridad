@@ -15,13 +15,8 @@
             background: #222;
             color: #fff;
         }
-        #qrcode {
-            margin: 30px;
-        }
-        .url {
-            font-size: 1.2em;
-            color: #0ff;
-        }
+        #qrcode { margin: 30px; }
+        .url { font-size: 1.2em; color: #0ff; }
     </style>
 </head>
 <body>
@@ -29,11 +24,10 @@
     <canvas id="qrcode"></canvas>
     <div class="url" id="qrurl"></div>
     <script>
-        // Pega aquí la URL de tu web en Render:
-        const qrUrl = "https://demo-cibersuridad.onrender.com/hack";
+        // SIEMPRE usa location.origin para que funcione local o en render
+        const qrUrl = location.origin + "/hack";
         document.getElementById('qrurl').textContent = qrUrl;
-
-        var qr = new QRious({
+        new QRious({
             element: document.getElementById('qrcode'),
             value: qrUrl,
             size: 320,

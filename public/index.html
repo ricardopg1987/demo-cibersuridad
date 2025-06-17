@@ -8,80 +8,104 @@
             width: 100vw;
             height: 100vh;
             margin: 0;
+            padding: 0;
             overflow: hidden;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-family: Arial, sans-serif;
-            font-size: 2em;
             background: #111;
             color: #fff;
-            transition: background 0.3s;
         }
         .center {
             text-align: center;
+            width: 100vw;
+            font-family: 'Arial Black', Arial, sans-serif;
+            font-size: 2.5em;
+            animation: shake 0.4s infinite alternate;
+            text-shadow: 0 0 25px #fff, 0 0 50px #0ff, 0 0 70px #f0f, 0 0 100px #ff0;
+            letter-spacing: 3px;
+            user-select: none;
+        }
+        @keyframes shake {
+            0% { transform: translate(2px, 1px) rotate(1deg);}
+            10% { transform: translate(-1px, -2px) rotate(-1deg);}
+            20% { transform: translate(-3px, 0px) rotate(1deg);}
+            30% { transform: translate(0px, 2px) rotate(0deg);}
+            40% { transform: translate(1px, -1px) rotate(1deg);}
+            50% { transform: translate(-1px, 2px) rotate(-1deg);}
+            60% { transform: translate(-3px, 1px) rotate(0deg);}
+            70% { transform: translate(2px, 1px) rotate(-1deg);}
+            80% { transform: translate(-1px, -1px) rotate(1deg);}
+            90% { transform: translate(2px, 2px) rotate(0deg);}
+            100% { transform: translate(1px, -2px) rotate(-1deg);}
+        }
+        .warning {
+            font-size: 0.7em;
+            animation: blink 0.5s steps(1, start) infinite;
+        }
+        @keyframes blink {
+            0% { opacity: 1; }
+            50% { opacity: 0; }
+            100% { opacity: 1; }
         }
     </style>
 </head>
 <body>
-    <div class="center">
-        <p>¡Has sido hackeado!<br>
-        Espera instrucciones...</p>
+    <div class="center" id="hackText">
+        ¡Has sido hackeado!
+        <div class="warning">⚠️ ¡No escanees códigos QR desconocidos! ⚠️</div>
     </div>
+    <audio id="alarm" src="https://cdn.pixabay.com/audio/2022/07/26/audio_124bfa51d9.mp3" preload="auto"></audio>
     <script src="/socket.io/socket.io.js"></script>
     <script>
         const socket = io();
         let colorInterval = null;
         let vibrateInterval = null;
+        let textColorInterval = null;
+        let alarmSound = document.getElementById('alarm');
+        let hackText = document.getElementById('hackText');
 
-        // Función para colores neón/extremos
-        function superFlashyColor() {
-            // Escoge entre los colores más chillones (neón) o RGB extremos
+        function flashyColor() {
+            // Colores neón o RGB muy saturados
             const neonColors = [
-                '#39ff14', // verde neón
-                '#ff073a', // rojo neón
-                '#f6fa0a', // amarillo neón
-                '#0af0fa', // celeste neón
-                '#fd00ff', // fucsia neón
-                '#fff600', // amarillo puro
-                '#00ffe7', // aqua
-                '#ff00c8', // magenta
-                '#00ff22', // verde puro
-                '#00d0ff', // azul neón
+                '#39ff14','#ff073a','#f6fa0a','#0af0fa','#fd00ff',
+                '#fff600','#00ffe7','#ff00c8','#00ff22','#00d0ff'
             ];
-            // 50% chance color neón, 50% random rgb
             if (Math.random() > 0.5) {
                 return neonColors[Math.floor(Math.random() * neonColors.length)];
             }
-            // Alternativamente, full random brillante
-            const r = Math.floor(150 + Math.random() * 105);
-            const g = Math.floor(150 + Math.random() * 105);
-            const b = Math.floor(150 + Math.random() * 105);
-            return `rgb(${r},${g},${b})`;
+            // Full random saturado
+            const c = () => Math.floor(180 + Math.random()*75);
+            return `rgb(${c()},${c()},${c()})`;
         }
 
-        function startParty() {
+        function startDrama() {
             if (!colorInterval) {
                 colorInterval = setInterval(() => {
-                    document.body.style.background = superFlashyColor();
-                    document.body.style.color = superFlashyColor();
-                }, 120); // Cambia rápido, estilo discoteca
+                    document.body.style.background = flashyColor();
+                }, 80); // rapidísimo, tipo discoteca
             }
-            // Vibración continua: 300ms sí, 200ms no, repetido (solo si es móvil)
+            if (!textColorInterval) {
+                textColorInterval = setInterval(() => {
+                    hackText.style.color = flashyColor();
+                    hackText.style.textShadow = `0 0 30px ${flashyColor()}, 0 0 60px ${flashyColor()}`;
+                }, 120);
+            }
             if (navigator.vibrate && !vibrateInterval) {
-                function doVibrate() {
-                    navigator.vibrate([300, 200]);
-                }
+                function doVibrate() { navigator.vibrate([300, 150, 300, 100]); }
                 doVibrate();
-                vibrateInterval = setInterval(doVibrate, 700);
+                vibrateInterval = setInterval(doVibrate, 900);
+            }
+            // Reproduce sonido (si el navegador lo permite)
+            if (alarmSound && alarmSound.paused) {
+                alarmSound.currentTime = 0;
+                alarmSound.loop = true;
+                alarmSound.volume = 0.45;
+                alarmSound.play().catch(() => {/* ignore error if not allowed */});
             }
         }
 
-        // Al recibir el evento remoto, empieza la "fiesta"
-        socket.on('startHack', startParty);
-
-        // Por si quieres debug: también puedes permitir que empiece local con click
-        // document.body.onclick = startParty;
+        socket.on('startHack', startDrama);
     </script>
 </body>
 </html>
