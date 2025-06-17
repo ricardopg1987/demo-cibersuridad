@@ -1,7 +1,7 @@
 {
   "name": "DemoSeguridad",
-  "version": "2.0.0",
-  "description": "Demo educativa sobre los peligros de escanear códigos QR desconocidos",
+  "version": "2.1.0",
+  "description": "Demo educativa sobre los peligros de escanear códigos QR desconocidos - Con vibración constante y efectos mejorados",
   "main": "server.js",
   "scripts": {
     "start": "node server.js",
@@ -14,7 +14,9 @@
     "demo",
     "education",
     "websocket",
-    "express"
+    "express",
+    "vibration",
+    "cybersecurity"
   ],
   "author": "Tu Nombre",
   "license": "MIT",
@@ -28,5 +30,6 @@
   "repository": {
     "type": "git",
     "url": "tu-repositorio-aqui"
-  }
+  },
+  "homepage": "tu-url-de-demo-aqui"
 }

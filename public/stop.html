@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Parada de Emergencia</title>
+    <style>
+        body {
+            background: linear-gradient(135deg, #28a745, #20c997);
+            color: white;
+            font-family: Arial, sans-serif;
+            text-align: center;
+            padding: 50px 20px;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+        }
+        
+        .container {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 40px;
+            border-radius: 20px;
+            backdrop-filter: blur(10px);
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.2);
+            max-width: 500px;
+            width: 100%;
+        }
+        
+        h1 {
+            font-size: 3em;
+            margin-bottom: 20px;
+        }
+        
+        p {
+            font-size: 1.3em;
+            margin: 20px 0;
+        }
+        
+        .stop-btn {
+            background: #dc3545;
+            color: white;
+            border: none;
+            padding: 20px 40px;
+            font-size: 1.5em;
+            border-radius: 15px;
+            cursor: pointer;
+            margin: 20px;
+            box-shadow: 0 8px 25px rgba(220, 53, 69, 0.4);
+            transition: all 0.3s ease;
+        }
+        
+        .stop-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 12px 35px rgba(220, 53, 69, 0.6);
+        }
+        
+        .back-btn {
+            background: #007bff;
+            color: white;
+            text-decoration: none;
+            padding: 15px 30px;
+            border-radius: 10px;
+            display: inline-block;
+            margin-top: 20px;
+            transition: all 0.3s ease;
+        }
+        
+        .back-btn:hover {
+            background: #0056b3;
+            transform: translateY(-2px);
+        }
+        
+        .status {
+            background: rgba(0, 0, 0, 0.2);
+            padding: 15px;
+            border-radius: 10px;
+            margin: 20px 0;
+            border-left: 4px solid #ffc107;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>⏹️ Control de Emergencia</h1>
+        <p>Si los efectos de la demo continúan ejecutándose, usa este botón para detenerlos:</p>
+        
+        <button class="stop-btn" onclick="emergencyStop()">
+            🛑 DETENER TODOS LOS EFECTOS
+        </button>
+        
+        <div class="status" id="status">
+            💡 Esta página enviará automáticamente la señal de parada al cargar.
+        </div>
+        
+        <p>Esta página enviará la señal de parada a todos los dispositivos conectados.</p>
+        
+        <a href="/" class="back-btn">← Volver al Panel de Control</a>
+    </div>
+
+    <script src="/socket.io/socket.io.js"></script>
+    <script>
+        const socket = io();
+        const status = document.getElementById('status');
+        
+        function updateStatus(message, color = '#ffc107') {
+            status.innerHTML = message;
+            status.style.borderLeftColor = color;
+        }
+        
+        function emergencyStop() {
+            socket.emit('stopHack');
+            updateStatus('🛑 Señal de parada enviada a todos los dispositivos.', '#28a745');
+        }
+        
+        // Auto-detener al cargar la página
+        window.addEventListener('load', () => {
+            setTimeout(() => {
+                socket.emit('stopHack');
+                updateStatus('✅ Señal de parada automática enviada.', '#28a745');
+            }, 1000);
+        });
+        
+        socket.on('connect', () => {
+            updateStatus('🟢 Conectado. Listo para enviar parada de emergencia.', '#28a745');
+        });
+    </script>
+</body>
+</html>

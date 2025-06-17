@@ -3,143 +3,410 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Prueba de Vibración y Sonido</title>
+    <title>⚠️ SISTEMA COMPROMETIDO ⚠️</title>
     <style>
-        body {
-            font-family: Arial, sans-serif;
-            padding: 20px;
-            background: #f0f0f0;
+        html, body {
+            width: 100vw;
+            height: 100vh;
+            margin: 0;
+            padding: 0;
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: #000;
+            color: #fff;
+            font-family: 'Courier New', monospace;
         }
-        .test-btn {
-            display: block;
-            width: 100%;
-            max-width: 300px;
-            margin: 10px auto;
-            padding: 15px;
-            font-size: 18px;
-            border: none;
-            border-radius: 8px;
-            cursor: pointer;
-            color: white;
-        }
-        .vibrate-btn { background: #ff6b6b; }
-        .sound-btn { background: #4ecdc4; }
-        .both-btn { background: #45b7d1; }
-        .status {
+        
+        .center {
             text-align: center;
-            margin: 20px 0;
-            padding: 10px;
-            border-radius: 5px;
-            background: white;
+            width: 100vw;
+            font-size: clamp(1.5rem, 5vw, 3rem);
+            animation: shake 0.3s infinite alternate;
+            text-shadow: 
+                0 0 20px #fff, 
+                0 0 40px #ff0040, 
+                0 0 60px #ff0040, 
+                0 0 80px #ff0040;
+            letter-spacing: 3px;
+            user-select: none;
+            font-weight: bold;
+            text-transform: uppercase;
+        }
+        
+        @keyframes shake {
+            0% { transform: translate(2px, 1px) rotate(1deg) scale(1.02); }
+            10% { transform: translate(-1px, -2px) rotate(-1deg) scale(0.98); }
+            20% { transform: translate(-3px, 0px) rotate(1deg) scale(1.01); }
+            30% { transform: translate(0px, 2px) rotate(0deg) scale(0.99); }
+            40% { transform: translate(1px, -1px) rotate(1deg) scale(1.02); }
+            50% { transform: translate(-1px, 2px) rotate(-1deg) scale(0.98); }
+            60% { transform: translate(-3px, 1px) rotate(0deg) scale(1.01); }
+            70% { transform: translate(2px, 1px) rotate(-1deg) scale(0.99); }
+            80% { transform: translate(-1px, -1px) rotate(1deg) scale(1.02); }
+            90% { transform: translate(2px, 2px) rotate(0deg) scale(0.98); }
+            100% { transform: translate(1px, -2px) rotate(-1deg) scale(1.01); }
+        }
+        
+        .warning {
+            font-size: 0.6em;
+            animation: blink 0.8s steps(1, start) infinite;
+            margin-top: 20px;
+            color: #ffff00;
+        }
+        
+        @keyframes blink {
+            0%, 50% { opacity: 1; }
+            51%, 100% { opacity: 0; }
+        }
+        
+        .skull {
+            font-size: 1.5em;
+            animation: rotate 2s linear infinite;
+        }
+        
+        @keyframes rotate {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+        
+        .glitch {
+            animation: glitch 0.5s infinite;
+        }
+        
+        @keyframes glitch {
+            0% { text-shadow: 0 0 20px #fff, 0 0 40px #ff0040; }
+            25% { text-shadow: 0 0 20px #00ff40, 0 0 40px #0040ff; }
+            50% { text-shadow: 0 0 20px #ff4000, 0 0 40px #40ff00; }
+            75% { text-shadow: 0 0 20px #4000ff, 0 0 40px #ff0040; }
+            100% { text-shadow: 0 0 20px #fff, 0 0 40px #ff0040; }
+        }
+        
+        .matrix {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            opacity: 0.1;
+            z-index: -1;
+            font-family: 'Courier New', monospace;
+            font-size: 10px;
+            color: #00ff00;
+            overflow: hidden;
+            pointer-events: none;
+        }
+        
+        .matrix-column {
+            position: absolute;
+            top: -100px;
+            animation: matrix-fall linear infinite;
+        }
+        
+        @keyframes matrix-fall {
+            to { transform: translateY(100vh); }
+        }
+        
+        .hidden-message {
+            position: fixed;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 0.8rem;
+            color: #666;
+            opacity: 0;
+            transition: opacity 0.5s;
         }
     </style>
 </head>
 <body>
-    <h1>🔧 Diagnóstico de Vibración y Sonido</h1>
+    <div class="matrix" id="matrix"></div>
     
-    <div class="status" id="status">
-        Toca los botones para probar cada función
+    <div class="center" id="hackText">
+        <div class="skull">☠️</div>
+        <div class="glitch">¡SISTEMA COMPROMETIDO!</div>
+        <div class="warning">
+            ⚠️ TUS DATOS ESTÁN SIENDO EXTRAÍDOS ⚠️<br>
+            ❌ NO ESCANEES CÓDIGOS QR DESCONOCIDOS ❌
+        </div>
     </div>
     
-    <button class="test-btn vibrate-btn" onclick="testVibration()">
-        📳 Probar Vibración
-    </button>
-    
-    <button class="test-btn sound-btn" onclick="testSound()">
-        🔊 Probar Sonido
-    </button>
-    
-    <button class="test-btn both-btn" onclick="testBoth()">
-        🎯 Probar Ambos
-    </button>
-    
-    <div class="status">
-        <h3>📋 Checklist para que funcione:</h3>
-        <p>✅ Usar HTTPS (o localhost)</p>
-        <p>✅ Tocar la pantalla primero (interacción del usuario)</p>
-        <p>✅ Activar sonido en el dispositivo</p>
-        <p>✅ No estar en modo silencioso</p>
-        <p>✅ Dar permisos al navegador</p>
+    <div class="hidden-message" id="hiddenMsg">
+        Esta es una demostración educativa sobre seguridad.
     </div>
 
-    <audio id="testAudio" preload="auto">
-        <source src="data:audio/wav;base64,UklGRnoGAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YQoGAACBhYqFbF1fdJivrJBhNjVgodDbq2EcBj+a2/LDciUFLIHO8tiJNwgZaLvt559NEAxQp+PwtmMcBjiR1/LMeSwFJHfH8N2QQAoUXrTp66hVFApGn+DyvmcfBTCQ1/LNeSoFJHfH8N2QQAoUXrTp66hVFApGn+DyvmcfBTCQ1/LNeSoFJHfH8N2QQAoUXrTp66hVFApGn+DyvmcfBTCQ1/LNeSoFJHfH8N2QQAoUXrTp66hVFApGn+DyvmcfBTCQ1/LNeSoFJHfH8N2QQAoUXrTp66hVFApGn+DyvmcfBTCQ1/LNeSoFJHfH8N2QQAoUXrTp66hVFApGn+DyvmcfBTCQ1/LNeSoFJHfH8N2QQAoUXrTp66hVFApGn+DyvmcfBTCQ1/LNeSoFJHfH8N2QQAoUXrTp66hVFApGn+DyvmcfBTCQ1/LNeSoFJHfH8N2QQAoUXrTp66hVFApGn+DyvmcfBTCQ1/LNeSoFJHfH8N2QQAoUXrTp66hVFApGn+DyvmcfBTCQ1/LNeSoFJHfH8N2QQAoUXrTp66hVFApGn+DyvmcfBTCQ1/LNeSoFJHfH8N2QQAoUXrTp66hVFApGn+DyvmcfBTCQ1/LNeSoFJHfH8N2QQAoUXrTp66hVFApGn+DyvmcfBTCQ1/LNeSoFJHfH8N2QQAoUXrTp66hVFApGn+DyvmcfBTCQ1/LNeSoFJHfH8N2QQAoUXrTp66hVFApGn+DyvmcfBTCQ1/LNeSoFJHfH8N2QQAoUXrTp66hVFApGn+DyvmcfBTCQ1/LNeSoFJHfH8N2QQAoUXrTp66hVFApGn+DyvmcfBTCQ1/LNeSoFJHfH8N2QQAoUXrTp66hVFApGn+DyvmcfBTCQ1/LNeSoFJHfH8N2QQAoUXrTp66hVFApGn+DyvmcfBTCQ1/LNeSoFJHfH8N2QQAoUXrTp66hVFApGn+DyvmcfBTCQ1/LNeSoFJHfH8N2QQAoUXrTp66hVFApGn+DyvmcfBTCQ1/LNeSoFJHfH8N2QQAoUXrTp66hVFApGn+DyvmcfBT" type="audio/wav">
+    <!-- Sonido de alarma simple -->
+    <audio id="alarm" preload="auto" loop>
+        <source src="https://cdn.pixabay.com/audio/2022/07/26/audio_124bfa51d9.mp3" type="audio/mpeg">
+        <source src="https://www.soundjay.com/misc/beep-07a.wav" type="audio/wav">
     </audio>
 
+    <script src="/socket.io/socket.io.js"></script>
     <script>
-        const status = document.getElementById('status');
-        const audio = document.getElementById('testAudio');
+        const socket = io();
+        let effects = {
+            colorInterval: null,
+            vibrateInterval: null,
+            textColorInterval: null,
+            matrixInterval: null,
+            beepInterval: null
+        };
         
-        function updateStatus(message, color = '#333') {
-            status.innerHTML = message;
-            status.style.color = color;
+        const hackText = document.getElementById('hackText');
+        const hiddenMsg = document.getElementById('hiddenMsg');
+        const alarmSound = document.getElementById('alarm');
+        let audioContext = null;
+        
+        // Colores neón brillantes para el efecto
+        const neonColors = [
+            '#ff0040', '#ff4000', '#ff8000', '#ffff00', '#80ff00',
+            '#40ff00', '#00ff40', '#00ff80', '#00ffff', '#0080ff',
+            '#0040ff', '#4000ff', '#8000ff', '#ff00ff', '#ff0080'
+        ];
+        
+        // Generar color aleatorio brillante
+        function getRandomNeonColor() {
+            return neonColors[Math.floor(Math.random() * neonColors.length)];
         }
         
-        function testVibration() {
-            if ('vibrate' in navigator) {
-                // Patrón: vibrar 500ms, pausa 200ms, vibrar 500ms
-                navigator.vibrate([500, 200, 500, 200, 300]);
-                updateStatus('📳 Vibración activada (si tu dispositivo lo soporta)', 'green');
-            } else {
-                updateStatus('❌ Tu dispositivo no soporta vibración', 'red');
+        // VIBRACIÓN CONSTANTE e intensa
+        function startContinuousVibration() {
+            if (navigator.vibrate) {
+                function vibratePattern() {
+                    // Patrón intenso: vibra 400ms, pausa 100ms, vibra 400ms, pausa 100ms, vibra 200ms
+                    navigator.vibrate([400, 100, 400, 100, 200, 50, 300]);
+                }
+                
+                // Vibrar inmediatamente
+                vibratePattern();
+                
+                // Continuar vibrando cada 1.2 segundos
+                effects.vibrateInterval = setInterval(vibratePattern, 1200);
             }
         }
         
-        function testSound() {
-            audio.currentTime = 0;
-            audio.volume = 0.7;
-            audio.play()
-                .then(() => {
-                    updateStatus('🔊 Sonido reproducido correctamente', 'green');
-                })
-                .catch(error => {
-                    updateStatus('❌ Error reproduciendo sonido: ' + error.message, 'red');
-                    // Intentar sonido sintético
-                    createBeep();
-                });
+        // Detener vibración
+        function stopVibration() {
+            if (effects.vibrateInterval) {
+                clearInterval(effects.vibrateInterval);
+                effects.vibrateInterval = null;
+            }
+            // Detener cualquier vibración en curso
+            if (navigator.vibrate) {
+                navigator.vibrate(0);
+            }
         }
         
-        function createBeep() {
+        // Sonido simple pero efectivo
+        function playAlarmSound() {
             try {
-                const audioContext = new (window.AudioContext || window.webkitAudioContext)();
-                const oscillator = audioContext.createOscillator();
-                const gainNode = audioContext.createGain();
-                
-                oscillator.connect(gainNode);
-                gainNode.connect(audioContext.destination);
-                
-                oscillator.frequency.setValueAtTime(800, audioContext.currentTime);
-                oscillator.type = 'sine';
-                
-                gainNode.gain.setValueAtTime(0.3, audioContext.currentTime);
-                gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 1);
-                
-                oscillator.start(audioContext.currentTime);
-                oscillator.stop(audioContext.currentTime + 1);
-                
-                updateStatus('🎵 Sonido sintético reproducido', 'blue');
+                alarmSound.currentTime = 0;
+                alarmSound.volume = 0.5;
+                alarmSound.loop = true;
+                alarmSound.play().catch(() => {
+                    // Si falla, crear beep sintético
+                    createSyntheticBeepLoop();
+                });
             } catch (e) {
-                updateStatus('❌ No se pudo crear sonido sintético', 'red');
+                createSyntheticBeepLoop();
             }
         }
         
-        function testBoth() {
-            testVibration();
-            setTimeout(testSound, 200); // Pequeño delay para que no interfieran
+        // Crear beep sintético en loop
+        function createSyntheticBeepLoop() {
+            try {
+                audioContext = new (window.AudioContext || window.webkitAudioContext)();
+                
+                function createBeep() {
+                    const oscillator = audioContext.createOscillator();
+                    const gainNode = audioContext.createGain();
+                    
+                    oscillator.connect(gainNode);
+                    gainNode.connect(audioContext.destination);
+                    
+                    // Frecuencia de alarma típica
+                    oscillator.frequency.setValueAtTime(1000, audioContext.currentTime);
+                    oscillator.type = 'square'; // Sonido más agudo
+                    
+                    gainNode.gain.setValueAtTime(0.2, audioContext.currentTime);
+                    gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.4);
+                    
+                    oscillator.start(audioContext.currentTime);
+                    oscillator.stop(audioContext.currentTime + 0.4);
+                }
+                
+                // Crear beep inmediato
+                createBeep();
+                
+                // Repetir cada 600ms para simular alarma
+                effects.beepInterval = setInterval(createBeep, 600);
+            } catch (e) {
+                console.log('No se pudo crear sonido sintético');
+            }
         }
         
-        // Información del dispositivo
-        window.addEventListener('load', () => {
-            let info = '📱 Información del dispositivo:<br>';
-            info += `Vibración: ${navigator.vibrate ? '✅ Soportada' : '❌ No soportada'}<br>`;
-            info += `Audio Context: ${window.AudioContext || window.webkitAudioContext ? '✅ Soportado' : '❌ No soportado'}<br>`;
-            info += `User Agent: ${navigator.userAgent.includes('Mobile') ? '📱 Móvil' : '🖥️ Escritorio'}`;
+        // Detener todos los sonidos
+        function stopAllSounds() {
+            if (alarmSound) {
+                alarmSound.pause();
+                alarmSound.currentTime = 0;
+            }
             
-            const infoDiv = document.createElement('div');
-            infoDiv.className = 'status';
-            infoDiv.innerHTML = info;
-            document.body.appendChild(infoDiv);
-        });
+            if (effects.beepInterval) {
+                clearInterval(effects.beepInterval);
+                effects.beepInterval = null;
+            }
+            
+            if (audioContext) {
+                audioContext.close();
+                audioContext = null;
+            }
+        }
+        
+        // Crear efecto Matrix
+        function createMatrixEffect() {
+            const matrixContainer = document.getElementById('matrix');
+            const chars = '01アイウエオカキクケコサシスセソタチツテトナニヌネノハヒフヘホマミムメモヤユヨラリルレロワヲン';
+            
+            function createColumn() {
+                const column = document.createElement('div');
+                column.className = 'matrix-column';
+                column.style.left = Math.random() * 100 + 'vw';
+                column.style.animationDuration = (Math.random() * 3 + 2) + 's';
+                
+                let text = '';
+                for (let i = 0; i < 20; i++) {
+                    text += chars.charAt(Math.floor(Math.random() * chars.length)) + '<br>';
+                }
+                column.innerHTML = text;
+                
+                matrixContainer.appendChild(column);
+                
+                setTimeout(() => {
+                    if (column.parentNode) {
+                        column.parentNode.removeChild(column);
+                    }
+                }, 5000);
+            }
+            
+            return setInterval(createColumn, 100);
+        }
+        
+        // Iniciar todos los efectos dramáticos
+        function startFullHackEffect() {
+            stopAllEffects(); // Detener efectos previos
+            
+            // Efecto de colores de fondo
+            effects.colorInterval = setInterval(() => {
+                document.body.style.background = `radial-gradient(circle, ${getRandomNeonColor()}, #000)`;
+            }, 100);
+            
+            // Efecto de colores de texto
+            effects.textColorInterval = setInterval(() => {
+                const color1 = getRandomNeonColor();
+                const color2 = getRandomNeonColor();
+                hackText.style.color = color1;
+                hackText.style.textShadow = `
+                    0 0 20px ${color1}, 
+                    0 0 40px ${color2}, 
+                    0 0 60px ${color1}, 
+                    0 0 80px ${color2}
+                `;
+            }, 150);
+            
+            // VIBRACIÓN CONSTANTE
+            startContinuousVibration();
+            
+            // Efecto Matrix
+            effects.matrixInterval = createMatrixEffect();
+            
+            // Sonido de alarma
+            playAlarmSound();
+            
+            // Mostrar mensaje oculto después de 3 segundos
+            setTimeout(() => {
+                hiddenMsg.style.opacity = '0.7';
+            }, 3000);
+        }
+        
+        // Detener todos los efectos
+        function stopAllEffects() {
+            // Limpiar intervalos
+            Object.keys(effects).forEach(key => {
+                if (effects[key]) {
+                    clearInterval(effects[key]);
+                    effects[key] = null;
+                }
+            });
+            
+            // Detener vibración específicamente
+            stopVibration();
+            
+            // Detener sonidos
+            stopAllSounds();
+            
+            // Restaurar estilos
+            document.body.style.background = '#000';
+            hackText.style.color = '#fff';
+            hackText.style.textShadow = '0 0 20px #fff, 0 0 40px #ff0040';
+            
+            // Limpiar Matrix
+            document.getElementById('matrix').innerHTML = '';
+            
+            // Ocultar mensaje
+            hiddenMsg.style.opacity = '0';
+        }
+        
+        // Efectos individuales
+        function flashColors() {
+            stopAllEffects();
+            effects.colorInterval = setInterval(() => {
+                document.body.style.background = `radial-gradient(circle, ${getRandomNeonColor()}, #000)`;
+            }, 200);
+            
+            setTimeout(stopAllEffects, 5000);
+        }
+        
+        function vibrateOnly() {
+            stopVibration(); // Detener vibración previa
+            startContinuousVibration(); // Iniciar vibración constante
+            
+            // Detener después de 10 segundos
+            setTimeout(stopVibration, 10000);
+        }
+        
+        function soundOnly() {
+            stopAllSounds(); // Detener sonidos previos
+            playAlarmSound();
+            
+            // Detener después de 5 segundos
+            setTimeout(stopAllSounds, 5000);
+        }
+        
+        // Eventos del socket
+        socket.on('startHack', startFullHackEffect);
+        socket.on('stopHack', stopAllEffects);
+        socket.on('flashColors', flashColors);
+        socket.on('vibrate', vibrateOnly);
+        socket.on('playSound', soundOnly);
+        
+        // Detener efectos al salir de la página
+        window.addEventListener('beforeunload', stopAllEffects);
+        
+        // Habilitar contexto de audio con cualquier interacción
+        document.addEventListener('click', () => {
+            if (alarmSound) {
+                alarmSound.load();
+            }
+        }, { once: true });
+        
+        // También habilitar con touch para móviles
+        document.addEventListener('touchstart', () => {
+            if (alarmSound) {
+                alarmSound.load();
+            }
+        }, { once: true });
     </script>
 </body>
 </html>

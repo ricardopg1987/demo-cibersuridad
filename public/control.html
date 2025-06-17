@@ -159,7 +159,6 @@
             }
         }
     </style>
-</head>
 <body>
     <div class="container">
         <h1>🔒 Panel de Control</h1>
@@ -201,6 +200,8 @@
         <div class="links">
             <a href="/qr" class="link" target="_blank">📱 Ver Código QR</a>
             <a href="/hack" class="link" target="_blank">👀 Vista Previa</a>
+            <a href="/test" class="link" target="_blank">🔧 Prueba Rápida</a>
+            <a href="/stop" class="link" target="_blank">🛑 Parada de Emergencia</a>
         </div>
     </div>
 
@@ -235,7 +236,7 @@
         
         document.getElementById('vibrateBtn').onclick = () => {
             socket.emit('vibrate');
-            updateStatus('📳 Vibración activada en dispositivos móviles.', 'warning');
+            updateStatus('📳 Vibración constante activada en dispositivos móviles.', 'warning');
         };
         
         document.getElementById('soundBtn').onclick = () => {
