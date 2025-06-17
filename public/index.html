@@ -2,442 +2,53 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Demo Ciberseguridad - Cliente</title>
+    <title>¡Has sido hackeado!</title>
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-        
         body {
-            font-family: 'Arial', sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            min-height: 100vh;
+            width: 100vw;
+            height: 100vh;
+            margin: 0;
+            overflow: hidden;
             display: flex;
             align-items: center;
             justify-content: center;
-            transition: all 0.5s ease;
-            color: white;
-            overflow: hidden;
+            font-family: Arial, sans-serif;
+            font-size: 2em;
+            background: #111;
+            color: #fff;
+            transition: background 0.5s;
         }
-        
-        .container {
+        .center {
             text-align: center;
-            padding: 2rem;
-            backdrop-filter: blur(10px);
-            background: rgba(255, 255, 255, 0.1);
-            border-radius: 20px;
-            border: 1px solid rgba(255, 255, 255, 0.2);
-            max-width: 90%;
-        }
-        
-        .title {
-            font-size: 2.5rem;
-            margin-bottom: 1rem;
-            animation: pulse 2s infinite;
-        }
-        
-        .subtitle {
-            font-size: 1.2rem;
-            opacity: 0.8;
-            margin-bottom: 2rem;
-        }
-        
-        .status {
-            font-size: 1.1rem;
-            margin-top: 2rem;
-            padding: 1rem;
-            background: rgba(0, 0, 0, 0.3);
-            border-radius: 10px;
-        }
-        
-        .hack-mode {
-            animation: glitch 0.3s infinite;
-        }
-        
-        @keyframes pulse {
-            0%, 100% { transform: scale(1); }
-            50% { transform: scale(1.05); }
-        }
-        
-        @keyframes glitch {
-            0% { transform: translateX(0); }
-            20% { transform: translateX(-2px); }
-            40% { transform: translateX(2px); }
-            60% { transform: translateX(-2px); }
-            80% { transform: translateX(2px); }
-            100% { transform: translateX(0); }
-        }
-        
-        @keyframes hack-flash {
-            0%, 100% { opacity: 1; }
-            50% { opacity: 0.3; }
-        }
-        
-        .hack-effect {
-            animation: hack-flash 0.1s infinite;
-        }
-        
-        .matrix-bg {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            z-index: -1;
-            opacity: 0;
-            transition: opacity 1s;
-        }
-        
-        .matrix-bg.active {
-            opacity: 0.1;
-        }
-        
-        .connection-indicator {
-            position: fixed;
-            top: 20px;
-            right: 20px;
-            width: 15px;
-            height: 15px;
-            border-radius: 50%;
-            background: #f44336;
-            box-shadow: 0 0 10px #f44336;
-            transition: all 0.3s;
-        }
-        
-        .connection-indicator.connected {
-            background: #4CAF50;
-            box-shadow: 0 0 10px #4CAF50;
-        }
-        
-        .qr-section {
-            margin: 20px 0;
-            padding: 20px;
-            background: rgba(255,255,255,0.9);
-            border-radius: 10px;
-            color: #333;
-            transition: all 0.3s;
-        }
-        
-        .error-message {
-            background: #ff4444;
-            color: white;
-            padding: 15px;
-            border-radius: 10px;
-            margin: 20px 0;
-            display: none;
-        }
-        
-        .loading {
-            display: inline-block;
-            width: 20px;
-            height: 20px;
-            border: 3px solid rgba(255,255,255,.3);
-            border-radius: 50%;
-            border-top-color: #fff;
-            animation: spin 1s ease-in-out infinite;
-        }
-        
-        @keyframes spin {
-            to { transform: rotate(360deg); }
         }
     </style>
 </head>
 <body>
-    <div class="connection-indicator" id="connectionIndicator"></div>
-    <canvas class="matrix-bg" id="matrixCanvas"></canvas>
-    
-    <div class="container" id="mainContainer">
-        <h1 class="title">🔒 Demo Ciberseguridad</h1>
-        <p class="subtitle">Dispositivo conectado y listo</p>
-        
-        <div class="error-message" id="errorMessage">
-            Error de conexión. Verificando servidor...
-        </div>
-        
-        <div id="qrSection" class="qr-section">
-            <p><strong>¡Comparte este QR con otros!</strong></p>
-            <div id="clientQR">
-                <div class="loading"></div>
-                <p>Generando QR...</p>
-            </div>
-            <p style="font-size: 0.9em; margin-top: 10px;">Escanea para unirte a la demo</p>
-        </div>
-        
-        <div class="status" id="statusMessage">
-            <span class="loading"></span> Conectando al servidor...
-        </div>
+    <div class="center">
+        <p>¡Has sido hackeado!<br>
+        Espera instrucciones...</p>
     </div>
-
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.7.2/socket.io.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcode/1.5.3/qrcode.min.js"></script>
+    <script src="/socket.io/socket.io.js"></script>
     <script>
-        // Variables globales
-        let socket;
-        let isHackMode = false;
-        let matrixEffect = null;
-        let deviceCount = 0;
-        
-        // Elementos del DOM
-        const body = document.body;
-        const container = document.getElementById('mainContainer');
-        const statusMessage = document.getElementById('statusMessage');
-        const connectionIndicator = document.getElementById('connectionIndicator');
-        const errorMessage = document.getElementById('errorMessage');
-        const matrixCanvas = document.getElementById('matrixCanvas');
-        const ctx = matrixCanvas.getContext('2d');
-        
-        // Configurar canvas
-        function resizeCanvas() {
-            matrixCanvas.width = window.innerWidth;
-            matrixCanvas.height = window.innerHeight;
-        }
-        resizeCanvas();
-        window.addEventListener('resize', resizeCanvas);
-        
-        // Efecto Matrix
-        function startMatrixEffect() {
-            const chars = '01アイウエオカキクケコサシスセソタチツテトナニヌネノハヒフヘホマミムメモヤユヨラリルレロワヲン';
-            const fontSize = 14;
-            const columns = matrixCanvas.width / fontSize;
-            const drops = Array(Math.floor(columns)).fill(1);
-            
-            matrixEffect = setInterval(() => {
-                ctx.fillStyle = 'rgba(0, 0, 0, 0.05)';
-                ctx.fillRect(0, 0, matrixCanvas.width, matrixCanvas.height);
-                
-                ctx.fillStyle = '#0F0';
-                ctx.font = fontSize + 'px monospace';
-                
-                for (let i = 0; i < drops.length; i++) {
-                    const text = chars[Math.floor(Math.random() * chars.length)];
-                    ctx.fillText(text, i * fontSize, drops[i] * fontSize);
-                    
-                    if (drops[i] * fontSize > matrixCanvas.height && Math.random() > 0.975) {
-                        drops[i] = 0;
-                    }
-                    drops[i]++;
-                }
-            }, 33);
-        }
-        
-        function stopMatrixEffect() {
-            if (matrixEffect) {
-                clearInterval(matrixEffect);
-                matrixEffect = null;
-                ctx.clearRect(0, 0, matrixCanvas.width, matrixCanvas.height);
+        const socket = io();
+
+        let colorInterval = null;
+        function startColors() {
+            if (colorInterval) return;
+            colorInterval = setInterval(() => {
+                const color = `hsl(${Math.floor(Math.random()*360)},100%,50%)`;
+                document.body.style.background = color;
+            }, 300);
+
+            // Vibración fuerte durante 2 segundos
+            if (navigator.vibrate) {
+                navigator.vibrate([500, 200, 500, 200, 500]);
             }
         }
-        
-        // Función de vibración
-        function vibrateDevice(pattern = [200]) {
-            if ('vibrate' in navigator) {
-                try {
-                    navigator.vibrate(pattern);
-                    return true;
-                } catch (e) {
-                    console.log('Error en vibración:', e);
-                    return false;
-                }
-            }
-            return false;
-        }
-        
-        // Generar QR code
-        function generateQR() {
-            try {
-                const currentUrl = window.location.origin;
-                const qrContainer = document.getElementById('clientQR');
-                
-                // Limpiar contenido anterior
-                qrContainer.innerHTML = '';
-                
-                QRCode.toCanvas(qrContainer, currentUrl, {
-                    width: 150,
-                    margin: 1,
-                    color: {
-                        dark: '#000000',
-                        light: '#FFFFFF'
-                    }
-                }, (error) => {
-                    if (error) {
-                        console.error('Error generando QR:', error);
-                        qrContainer.innerHTML = '<p style="color: #666;">Error generando QR</p>';
-                    }
-                });
-            } catch (error) {
-                console.error('Error con QRCode:', error);
-                document.getElementById('qrSection').style.display = 'none';
-            }
-        }
-        
-        // Inicializar Socket.IO
-        function initializeSocket() {
-            try {
-                socket = io({
-                    transports: ['websocket', 'polling'],
-                    timeout: 10000,
-                    forceNew: true,
-                    reconnection: true,
-                    reconnectionDelay: 1000,
-                    reconnectionAttempts: 5
-                });
-                
-                // Identificarse como cliente
-                socket.emit('identify', { type: 'client' });
-                
-                // Eventos de conexión
-                socket.on('connect', () => {
-                    console.log('Conectado al servidor');
-                    connectionIndicator.classList.add('connected');
-                    statusMessage.innerHTML = '✅ Conectado - Esperando comandos...';
-                    errorMessage.style.display = 'none';
-                });
-                
-                socket.on('disconnect', (reason) => {
-                    console.log('Desconectado:', reason);
-                    connectionIndicator.classList.remove('connected');
-                    statusMessage.innerHTML = `<span class="loading"></span> Desconectado (${reason}) - Reintentando...`;
-                });
-                
-                socket.on('connect_error', (error) => {
-                    console.error('Error de conexión:', error);
-                    errorMessage.style.display = 'block';
-                    errorMessage.textContent = `Error de conexión: ${error.message}`;
-                    statusMessage.innerHTML = '<span class="loading"></span> Error de conexión - Reintentando...';
-                });
-                
-                socket.on('reconnect', (attemptNumber) => {
-                    console.log('Reconectado después de', attemptNumber, 'intentos');
-                    statusMessage.innerHTML = '🔄 Reconectado exitosamente';
-                });
-                
-                // Eventos de la aplicación
-                socket.on('deviceCount', (count) => {
-                    deviceCount = count;
-                    const qrSection = document.getElementById('qrSection');
-                    if (count > 5) {
-                        qrSection.style.display = 'none';
-                    } else {
-                        qrSection.style.display = 'block';
-                    }
-                });
-                
-                socket.on('changeColor', (data) => {
-                    body.style.background = data.color;
-                    statusMessage.textContent = `🎨 Color cambiado: ${data.color}`;
-                });
-                
-                socket.on('vibrate', (data) => {
-                    const pattern = data.pattern || [200];
-                    const vibrated = vibrateDevice(pattern);
-                    statusMessage.textContent = vibrated ? '📳 Dispositivo vibrando...' : '📳 Vibración no soportada';
-                    
-                    // Efecto visual de vibración
-                    container.style.transform = 'translateX(5px)';
-                    setTimeout(() => {
-                        container.style.transform = 'translateX(-5px)';
-                        setTimeout(() => {
-                            container.style.transform = 'translateX(0)';
-                        }, 50);
-                    }, 50);
-                });
-                
-                socket.on('startDemo', () => {
-                    isHackMode = true;
-                    body.classList.add('hack-mode');
-                    container.classList.add('hack-effect');
-                    matrixCanvas.classList.add('active');
-                    startMatrixEffect();
-                    statusMessage.textContent = '⚠️ SISTEMA COMPROMETIDO ⚠️';
-                    vibrateDevice([100, 50, 100, 50, 100]);
-                });
-                
-                socket.on('stopDemo', () => {
-                    isHackMode = false;
-                    body.classList.remove('hack-mode');
-                    container.classList.remove('hack-effect');
-                    matrixCanvas.classList.remove('active');
-                    stopMatrixEffect();
-                    body.style.background = 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)';
-                    statusMessage.textContent = '✅ Demo finalizada - Sistema restaurado';
-                });
-                
-                socket.on('hackEffect', (data) => {
-                    vibrateDevice([50, 50, 50, 50, 50, 50]);
-                    
-                    const colors = ['#ff0000', '#00ff00', '#0000ff', '#ffff00', '#ff00ff', '#00ffff'];
-                    let colorIndex = 0;
-                    
-                    const hackInterval = setInterval(() => {
-                        body.style.background = colors[colorIndex % colors.length];
-                        colorIndex++;
-                    }, 100);
-                    
-                    setTimeout(() => {
-                        clearInterval(hackInterval);
-                        if (!isHackMode) {
-                            body.style.background = 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)';
-                        }
-                    }, data.duration || 3000);
-                    
-                    statusMessage.textContent = '💀 HACK EN PROGRESO 💀';
-                });
-                
-            } catch (error) {
-                console.error('Error inicializando Socket.IO:', error);
-                errorMessage.style.display = 'block';
-                errorMessage.textContent = 'Error inicializando la aplicación';
-            }
-        }
-        
-        // Verificar dependencias y inicializar
-        function init() {
-            if (typeof io === 'undefined') {
-                errorMessage.style.display = 'block';
-                errorMessage.textContent = 'Error: Socket.IO no se pudo cargar';
-                statusMessage.textContent = '❌ Error cargando dependencias';
-                return;
-            }
-            
-            if (typeof QRCode === 'undefined') {
-                errorMessage.style.display = 'block';
-                errorMessage.textContent = 'Error: QRCode no se pudo cargar';
-                statusMessage.textContent = '❌ Error cargando QRCode';
-                return;
-            }
-            
-            // Generar QR
-            generateQR();
-            
-            // Inicializar Socket.IO
-            initializeSocket();
-        }
-        
-        // Evitar zoom en dispositivos móviles
-        document.addEventListener('touchstart', (e) => {
-            if (e.touches.length > 1) {
-                e.preventDefault();
-            }
+
+        socket.on('startHack', () => {
+            startColors();
         });
-        
-        let lastTouchEnd = 0;
-        document.addEventListener('touchend', (e) => {
-            const now = Date.now();
-            if (now - lastTouchEnd <= 300) {
-                e.preventDefault();
-            }
-            lastTouchEnd = now;
-        }, false);
-        
-        // Inicializar cuando el DOM esté listo
-        if (document.readyState === 'loading') {
-            document.addEventListener('DOMContentLoaded', init);
-        } else {
-            init();
-        }
     </script>
 </body>
 </html>
