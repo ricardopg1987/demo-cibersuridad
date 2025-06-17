@@ -170,31 +170,57 @@
             return neonColors[Math.floor(Math.random() * neonColors.length)];
         }
         
-        // VIBRACIÓN CONSTANTE e intensa
+        // VIBRACIÓN MEJORADA - Múltiples intentos
         function startContinuousVibration() {
-            if (navigator.vibrate) {
-                function vibratePattern() {
-                    // Patrón intenso: vibra 400ms, pausa 100ms, vibra 400ms, pausa 100ms, vibra 200ms
-                    navigator.vibrate([400, 100, 400, 100, 200, 50, 300]);
-                }
-                
-                // Vibrar inmediatamente
-                vibratePattern();
-                
-                // Continuar vibrando cada 1.2 segundos
-                effects.vibrateInterval = setInterval(vibratePattern, 1200);
+            console.log('🔧 Iniciando vibración continua...');
+            
+            if (!navigator.vibrate) {
+                console.log('❌ Vibración no soportada');
+                return;
             }
+            
+            // Detener vibración previa
+            stopVibration();
+            
+            function vibratePattern() {
+                // Patrón más intenso y largo
+                const pattern = [400, 100, 400, 100, 400, 100, 200];
+                console.log('📳 Vibrando con patrón:', pattern);
+                
+                try {
+                    const result = navigator.vibrate(pattern);
+                    console.log('Resultado vibración:', result);
+                } catch (e) {
+                    console.error('Error en vibración:', e);
+                }
+            }
+            
+            // Vibrar inmediatamente
+            vibratePattern();
+            
+            // Continuar vibrando cada segundo
+            effects.vibrateInterval = setInterval(() => {
+                console.log('⏰ Repitiendo vibración...');
+                vibratePattern();
+            }, 1000);
+            
+            console.log('✅ Vibración continua configurada');
         }
         
-        // Detener vibración
+        // Detener vibración con logs
         function stopVibration() {
+            console.log('🛑 Deteniendo vibración...');
+            
             if (effects.vibrateInterval) {
                 clearInterval(effects.vibrateInterval);
                 effects.vibrateInterval = null;
+                console.log('✅ Interval de vibración limpiado');
             }
+            
             // Detener cualquier vibración en curso
             if (navigator.vibrate) {
                 navigator.vibrate(0);
+                console.log('✅ Vibración detenida con navigator.vibrate(0)');
             }
         }
         
@@ -358,7 +384,44 @@
             hiddenMsg.style.opacity = '0';
         }
         
-        // Efectos individuales
+        // Función de prueba de vibración simple
+        function testVibrationNow() {
+            console.log('🔧 Probando vibración inmediata...');
+            if (navigator.vibrate) {
+                navigator.vibrate([1000, 500, 1000]);
+                console.log('✅ Vibración de prueba enviada');
+            } else {
+                console.log('❌ Vibración no disponible');
+            }
+        }
+        
+        // Efectos individuales mejorados
+        function vibrateOnly() {
+            console.log('📳 Activando solo vibración...');
+            stopVibration(); // Detener vibración previa
+            
+            // Probar vibración simple primero
+            if (navigator.vibrate) {
+                navigator.vibrate([500, 200, 500, 200, 500]);
+                console.log('✅ Vibración simple activada');
+                
+                // Después iniciar vibración continua
+                setTimeout(() => {
+                    startContinuousVibration();
+                }, 1000);
+                
+                // Detener después de 15 segundos
+                setTimeout(() => {
+                    stopVibration();
+                    console.log('⏰ Vibración detenida automáticamente');
+                }, 15000);
+            } else {
+                console.log('❌ Vibración no soportada');
+                alert('❌ Tu dispositivo no soporta vibración');
+            }
+        }
+        
+        // Efectos individuales - colores y sonido
         function flashColors() {
             stopAllEffects();
             effects.colorInterval = setInterval(() => {
@@ -366,14 +429,6 @@
             }, 200);
             
             setTimeout(stopAllEffects, 5000);
-        }
-        
-        function vibrateOnly() {
-            stopVibration(); // Detener vibración previa
-            startContinuousVibration(); // Iniciar vibración constante
-            
-            // Detener después de 10 segundos
-            setTimeout(stopVibration, 10000);
         }
         
         function soundOnly() {
@@ -394,19 +449,43 @@
         // Detener efectos al salir de la página
         window.addEventListener('beforeunload', stopAllEffects);
         
-        // Habilitar contexto de audio con cualquier interacción
+        // Habilitar contexto con interacción - MUY IMPORTANTE para móviles
         document.addEventListener('click', () => {
-            if (alarmSound) {
-                alarmSound.load();
-            }
+            console.log('👆 Click detectado - habilitando contexto');
+            testVibrationNow(); // Probar vibración inmediatamente
         }, { once: true });
         
         // También habilitar con touch para móviles
         document.addEventListener('touchstart', () => {
-            if (alarmSound) {
-                alarmSound.load();
-            }
+            console.log('👆 Touch detectado - habilitando contexto');
+            testVibrationNow(); // Probar vibración inmediatamente
         }, { once: true });
+        
+        // Auto-prueba de vibración al cargar (solo para debug)
+        window.addEventListener('load', () => {
+            console.log('📱 Página cargada');
+            console.log('Soporte de vibración:', navigator.vibrate ? 'SÍ' : 'NO');
+            console.log('User Agent:', navigator.userAgent);
+            
+            // Mostrar estado en pantalla
+            setTimeout(() => {
+                const debugInfo = document.createElement('div');
+                debugInfo.style.cssText = 'position:fixed;top:10px;left:10px;background:rgba(0,0,0,0.8);color:white;padding:10px;border-radius:5px;font-size:12px;z-index:9999;';
+                debugInfo.innerHTML = `
+                    Vibración: ${navigator.vibrate ? '✅' : '❌'}<br>
+                    Dispositivo: ${navigator.userAgent.includes('Mobile') ? '📱' : '🖥️'}<br>
+                    Toca la pantalla para activar
+                `;
+                document.body.appendChild(debugInfo);
+                
+                // Remover después de 5 segundos
+                setTimeout(() => {
+                    if (debugInfo.parentNode) {
+                        debugInfo.parentNode.removeChild(debugInfo);
+                    }
+                }, 5000);
+            }, 1000);
+        });
     </script>
 </body>
 </html>

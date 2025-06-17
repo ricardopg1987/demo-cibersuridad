@@ -32,8 +32,161 @@ app.get('/stop', (req, res) => {
     res.sendFile(path.join(__dirname, 'public', 'stop.html'));
 });
 
-// Página de prueba rápida
-app.get('/test', (req, res) => {
+// Página de prueba de vibración específica
+app.get('/vibrate-test', (req, res) => {
+    res.send(`
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Prueba de Vibración</title>
+    <style>
+        body { 
+            font-family: Arial, sans-serif; 
+            text-align: center; 
+            padding: 20px; 
+            background: #000; 
+            color: white; 
+        }
+        button { 
+            padding: 30px; 
+            margin: 20px; 
+            font-size: 24px; 
+            border: none; 
+            border-radius: 15px; 
+            cursor: pointer; 
+            color: white; 
+            width: 90%; 
+            max-width: 400px; 
+        }
+        .test1 { background: #ff0000; }
+        .test2 { background: #00ff00; }
+        .test3 { background: #0000ff; }
+        .test4 { background: #ff00ff; }
+        .info { 
+            background: #333; 
+            padding: 20px; 
+            margin: 20px auto; 
+            border-radius: 10px; 
+            max-width: 500px; 
+        }
+    </style>
+</head>
+<body>
+    <h1>🔧 PRUEBA DE VIBRACIÓN</h1>
+    
+    <div class="info" id="deviceInfo">
+        <h3>Información del Dispositivo:</h3>
+        <p id="userAgent"></p>
+        <p id="vibrateSupport"></p>
+        <p id="instructions"></p>
+    </div>
+    
+    <button class="test1" ontouchstart="vibrateTest1()" onclick="vibrateTest1()">
+        📳 PRUEBA 1: Vibración Simple
+    </button>
+    
+    <button class="test2" ontouchstart="vibrateTest2()" onclick="vibrateTest2()">
+        🚨 PRUEBA 2: Vibración Fuerte
+    </button>
+    
+    <button class="test3" ontouchstart="vibrateTest3()" onclick="vibrateTest3()">
+        ⚡ PRUEBA 3: Vibración Continua (10s)
+    </button>
+    
+    <button class="test4" ontouchstart="stopVibration()" onclick="stopVibration()">
+        ⏹️ DETENER VIBRACIÓN
+    </button>
+    
+    <div class="info">
+        <h3>📋 Checklist:</h3>
+        <p>✅ ¿Estás en un teléfono móvil REAL?</p>
+        <p>✅ ¿Está activada la vibración en configuración?</p>
+        <p>✅ ¿No está en modo silencioso?</p>
+        <p>✅ ¿Tocaste la pantalla primero?</p>
+    </div>
+    
+    <script>
+        let vibrateInterval = null;
+        
+        // Mostrar información del dispositivo
+        document.getElementById('userAgent').textContent = 'Navegador: ' + navigator.userAgent;
+        document.getElementById('vibrateSupport').textContent = 'Vibración: ' + (navigator.vibrate ? '✅ SOPORTADA' : '❌ NO SOPORTADA');
+        document.getElementById('instructions').innerHTML = navigator.vibrate ? 
+            '🟢 Tu dispositivo soporta vibración. Prueba los botones.' : 
+            '🔴 Tu dispositivo NO soporta vibración.';
+        
+        function vibrateTest1() {
+            console.log('Intentando vibración simple...');
+            if (navigator.vibrate) {
+                navigator.vibrate(1000); // 1 segundo
+                alert('Vibración simple activada (1 segundo)');
+            } else {
+                alert('❌ Vibración no soportada en este dispositivo');
+            }
+        }
+        
+        function vibrateTest2() {
+            console.log('Intentando vibración fuerte...');
+            if (navigator.vibrate) {
+                navigator.vibrate([500, 100, 500, 100, 500]); // Patrón fuerte
+                alert('Vibración fuerte activada');
+            } else {
+                alert('❌ Vibración no soportada en este dispositivo');
+            }
+        }
+        
+        function vibrateTest3() {
+            console.log('Iniciando vibración continua...');
+            stopVibration(); // Detener cualquier vibración previa
+            
+            if (navigator.vibrate) {
+                function vibrateLoop() {
+                    navigator.vibrate([300, 200, 300, 200, 400]);
+                }
+                
+                vibrateLoop(); // Vibrar inmediatamente
+                vibrateInterval = setInterval(vibrateLoop, 1000);
+                
+                alert('Vibración continua iniciada por 10 segundos');
+                
+                // Detener después de 10 segundos
+                setTimeout(() => {
+                    stopVibration();
+                    alert('Vibración continua detenida');
+                }, 10000);
+            } else {
+                alert('❌ Vibración no soportada en este dispositivo');
+            }
+        }
+        
+        function stopVibration() {
+            console.log('Deteniendo vibración...');
+            if (vibrateInterval) {
+                clearInterval(vibrateInterval);
+                vibrateInterval = null;
+            }
+            if (navigator.vibrate) {
+                navigator.vibrate(0); // Detener vibración
+            }
+            alert('Vibración detenida');
+        }
+        
+        // Evento para activar contexto con cualquier toque
+        document.addEventListener('touchstart', () => {
+            console.log('Pantalla tocada - contexto activado');
+        }, { once: true });
+        
+        // También para click en caso de que no sea táctil
+        document.addEventListener('click', () => {
+            console.log('Pantalla clickeada - contexto activado');
+        }, { once: true });
+    </script>
+</body>
+</html>
+    `);
+});
     res.send(`
 <!DOCTYPE html>
 <html>
@@ -217,4 +370,6 @@ server.listen(PORT, () => {
     console.log(`📱 Código QR: http://localhost:${PORT}/qr`);
     console.log(`💻 Demo hackeo: http://localhost:${PORT}/hack`);
     console.log(`🔧 Prueba rápida: http://localhost:${PORT}/test`);
+    console.log(`📳 PRUEBA VIBRACIÓN: http://localhost:${PORT}/vibrate-test`);
+    console.log(`🛑 Parada emergencia: http://localhost:${PORT}/stop`);
 });
