@@ -187,6 +187,9 @@ app.get('/vibrate-test', (req, res) => {
 </html>
     `);
 });
+
+// Página de prueba rápida
+app.get('/test', (req, res) => {
     res.send(`
 <!DOCTYPE html>
 <html>
