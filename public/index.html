@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <title>¡Has sido hackeado!</title>
     <style>
-        body {
+        html, body {
             width: 100vw;
             height: 100vh;
             margin: 0;
@@ -16,7 +16,7 @@
             font-size: 2em;
             background: #111;
             color: #fff;
-            transition: background 0.5s;
+            transition: background 0.3s;
         }
         .center {
             text-align: center;
@@ -31,24 +31,57 @@
     <script src="/socket.io/socket.io.js"></script>
     <script>
         const socket = io();
-
         let colorInterval = null;
-        function startColors() {
-            if (colorInterval) return;
-            colorInterval = setInterval(() => {
-                const color = `hsl(${Math.floor(Math.random()*360)},100%,50%)`;
-                document.body.style.background = color;
-            }, 300);
+        let vibrateInterval = null;
 
-            // Vibración fuerte durante 2 segundos
-            if (navigator.vibrate) {
-                navigator.vibrate([500, 200, 500, 200, 500]);
+        // Función para colores neón/extremos
+        function superFlashyColor() {
+            // Escoge entre los colores más chillones (neón) o RGB extremos
+            const neonColors = [
+                '#39ff14', // verde neón
+                '#ff073a', // rojo neón
+                '#f6fa0a', // amarillo neón
+                '#0af0fa', // celeste neón
+                '#fd00ff', // fucsia neón
+                '#fff600', // amarillo puro
+                '#00ffe7', // aqua
+                '#ff00c8', // magenta
+                '#00ff22', // verde puro
+                '#00d0ff', // azul neón
+            ];
+            // 50% chance color neón, 50% random rgb
+            if (Math.random() > 0.5) {
+                return neonColors[Math.floor(Math.random() * neonColors.length)];
+            }
+            // Alternativamente, full random brillante
+            const r = Math.floor(150 + Math.random() * 105);
+            const g = Math.floor(150 + Math.random() * 105);
+            const b = Math.floor(150 + Math.random() * 105);
+            return `rgb(${r},${g},${b})`;
+        }
+
+        function startParty() {
+            if (!colorInterval) {
+                colorInterval = setInterval(() => {
+                    document.body.style.background = superFlashyColor();
+                    document.body.style.color = superFlashyColor();
+                }, 120); // Cambia rápido, estilo discoteca
+            }
+            // Vibración continua: 300ms sí, 200ms no, repetido (solo si es móvil)
+            if (navigator.vibrate && !vibrateInterval) {
+                function doVibrate() {
+                    navigator.vibrate([300, 200]);
+                }
+                doVibrate();
+                vibrateInterval = setInterval(doVibrate, 700);
             }
         }
 
-        socket.on('startHack', () => {
-            startColors();
-        });
+        // Al recibir el evento remoto, empieza la "fiesta"
+        socket.on('startHack', startParty);
+
+        // Por si quieres debug: también puedes permitir que empiece local con click
+        // document.body.onclick = startParty;
     </script>
 </body>
 </html>

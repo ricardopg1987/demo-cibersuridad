@@ -29,8 +29,8 @@
     <canvas id="qrcode"></canvas>
     <div class="url" id="qrurl"></div>
     <script>
-        // Cambia esta URL si no usas localhost o el puerto es diferente
-        const qrUrl = location.origin + "/hack";
+        // Pega aquí la URL de tu web en Render:
+        const qrUrl = "https://TUDOMINIO.onrender.com/hack";
         document.getElementById('qrurl').textContent = qrUrl;
 
         var qr = new QRious({
