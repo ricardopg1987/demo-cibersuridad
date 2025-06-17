@@ -2,7 +2,8 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <title>¡Has sido hackeado!</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>⚠️ SISTEMA COMPROMETIDO ⚠️</title>
     <style>
         html, body {
             width: 100vw;
@@ -13,96 +14,361 @@
             display: flex;
             align-items: center;
             justify-content: center;
-            background: #111;
+            background: #000;
             color: #fff;
+            font-family: 'Courier New', monospace;
         }
+        
         .center {
             text-align: center;
             width: 100vw;
-            font-family: 'Arial Black', Arial, sans-serif;
-            font-size: 2.5em;
-            animation: shake 0.4s infinite alternate;
-            text-shadow: 0 0 25px #fff, 0 0 50px #0ff, 0 0 70px #f0f, 0 0 100px #ff0;
+            font-size: clamp(1.5rem, 5vw, 3rem);
+            animation: shake 0.3s infinite alternate;
+            text-shadow: 
+                0 0 20px #fff, 
+                0 0 40px #ff0040, 
+                0 0 60px #ff0040, 
+                0 0 80px #ff0040;
             letter-spacing: 3px;
             user-select: none;
+            font-weight: bold;
+            text-transform: uppercase;
         }
+        
         @keyframes shake {
-            0% { transform: translate(2px, 1px) rotate(1deg);}
-            10% { transform: translate(-1px, -2px) rotate(-1deg);}
-            20% { transform: translate(-3px, 0px) rotate(1deg);}
-            30% { transform: translate(0px, 2px) rotate(0deg);}
-            40% { transform: translate(1px, -1px) rotate(1deg);}
-            50% { transform: translate(-1px, 2px) rotate(-1deg);}
-            60% { transform: translate(-3px, 1px) rotate(0deg);}
-            70% { transform: translate(2px, 1px) rotate(-1deg);}
-            80% { transform: translate(-1px, -1px) rotate(1deg);}
-            90% { transform: translate(2px, 2px) rotate(0deg);}
-            100% { transform: translate(1px, -2px) rotate(-1deg);}
+            0% { transform: translate(2px, 1px) rotate(1deg) scale(1.02); }
+            10% { transform: translate(-1px, -2px) rotate(-1deg) scale(0.98); }
+            20% { transform: translate(-3px, 0px) rotate(1deg) scale(1.01); }
+            30% { transform: translate(0px, 2px) rotate(0deg) scale(0.99); }
+            40% { transform: translate(1px, -1px) rotate(1deg) scale(1.02); }
+            50% { transform: translate(-1px, 2px) rotate(-1deg) scale(0.98); }
+            60% { transform: translate(-3px, 1px) rotate(0deg) scale(1.01); }
+            70% { transform: translate(2px, 1px) rotate(-1deg) scale(0.99); }
+            80% { transform: translate(-1px, -1px) rotate(1deg) scale(1.02); }
+            90% { transform: translate(2px, 2px) rotate(0deg) scale(0.98); }
+            100% { transform: translate(1px, -2px) rotate(-1deg) scale(1.01); }
         }
+        
         .warning {
-            font-size: 0.7em;
-            animation: blink 0.5s steps(1, start) infinite;
+            font-size: 0.6em;
+            animation: blink 0.8s steps(1, start) infinite;
+            margin-top: 20px;
+            color: #ffff00;
         }
+        
         @keyframes blink {
-            0% { opacity: 1; }
-            50% { opacity: 0; }
-            100% { opacity: 1; }
+            0%, 50% { opacity: 1; }
+            51%, 100% { opacity: 0; }
+        }
+        
+        .skull {
+            font-size: 1.5em;
+            animation: rotate 2s linear infinite;
+        }
+        
+        @keyframes rotate {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+        
+        .glitch {
+            animation: glitch 0.5s infinite;
+        }
+        
+        @keyframes glitch {
+            0% { text-shadow: 0 0 20px #fff, 0 0 40px #ff0040; }
+            25% { text-shadow: 0 0 20px #00ff40, 0 0 40px #0040ff; }
+            50% { text-shadow: 0 0 20px #ff4000, 0 0 40px #40ff00; }
+            75% { text-shadow: 0 0 20px #4000ff, 0 0 40px #ff0040; }
+            100% { text-shadow: 0 0 20px #fff, 0 0 40px #ff0040; }
+        }
+        
+        .matrix {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            opacity: 0.1;
+            z-index: -1;
+            font-family: 'Courier New', monospace;
+            font-size: 10px;
+            color: #00ff00;
+            overflow: hidden;
+            pointer-events: none;
+        }
+        
+        .matrix-column {
+            position: absolute;
+            top: -100px;
+            animation: matrix-fall linear infinite;
+        }
+        
+        @keyframes matrix-fall {
+            to { transform: translateY(100vh); }
+        }
+        
+        .hidden-message {
+            position: fixed;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 0.8rem;
+            color: #666;
+            opacity: 0;
+            transition: opacity 0.5s;
         }
     </style>
 </head>
 <body>
+    <div class="matrix" id="matrix"></div>
+    
     <div class="center" id="hackText">
-        ¡Has sido hackeado!
-        <div class="warning">⚠️ ¡No escanees códigos QR desconocidos! ⚠️</div>
+        <div class="skull">☠️</div>
+        <div class="glitch">¡SISTEMA COMPROMETIDO!</div>
+        <div class="warning">
+            ⚠️ TUS DATOS ESTÁN SIENDO EXTRAÍDOS ⚠️<br>
+            ❌ NO ESCANEES CÓDIGOS QR DESCONOCIDOS ❌
+        </div>
     </div>
-    <audio id="alarm" src="https://cdn.pixabay.com/audio/2022/07/26/audio_124bfa51d9.mp3" preload="auto"></audio>
+    
+    <div class="hidden-message" id="hiddenMsg">
+        Esta es una demostración educativa sobre seguridad.
+    </div>
+
+    <!-- Múltiples fuentes de audio para mayor compatibilidad -->
+    <audio id="alarm1" preload="auto" loop>
+        <source src="https://www.soundjay.com/misc/sounds/bell-ringing-05.wav" type="audio/wav">
+        <source src="https://www.zapsplat.com/wp-content/uploads/2015/sound-effects-one/zapsplat_emergency_siren_alarm_002_29570.mp3" type="audio/mpeg">
+    </audio>
+    
+    <audio id="alarm2" preload="auto" loop>
+        <source src="data:audio/wav;base64,UklGRnoGAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YQoGAACBhYqFbF1fdJivrJBhNjVgodDbq2EcBj+a2/LDciUFLIHO8tiJNwgZaLvt559NEAxQp+PwtmMcBjiR1/LMeSwFJHfH8N2QQAoUXrTp66hVFApGn+DyvmcfBTCQ1/LNeSoFJHfH8N2QQAoUXrTp66hVFApGn+DyvmcfBTCQ1/LNeSoFJHfH8N2QQAoUXrTp66hVFApGn+DyvmcfBTCQ1/LNeSoFJHfH8N2QQAoUXrTp66hVFApGn+DyvmcfBTCQ1/LNeSoFJHfH8N2QQAoUXrTp66hVFApGn+DyvmcfBTCQ1/LNeSoFJHfH8N2QQAoUXrTp66hVFApGn+DyvmcfBTCQ1/LNeSoFJHfH8N2QQAoUXrTp66hVFApGn+DyvmcfBTCQ1/LNeSoFJHfH8N2QQAoUXrTp66hVFApGn+DyvmcfBTCQ1/LNeSoFJHfH8N2QQAoUXrTp66hVFApGn+DyvmcfBTCQ1/LNeSoFJHfH8N2QQAoUXrTp66hVFApGn+DyvmcfBTCQ1/LNeSoFJHfH8N2QQAoUXrTp66hVFApGn+DyvmcfBTCQ1/LNeSoFJHfH8N2QQAoUXrTp66hVFApGn+DyvmcfBTCQ1/LNeSoFJHfH8N2QQAoUXrTp66hVFApGn+DyvmcfBTCQ1/LNeSoFJHfH8N2QQAoUXrTp66hVFApGn+DyvmcfBTCQ1/LNeSoFJHfH8N2QQAoUXrTp66hVFApGn+DyvmcfBTCQ1/LNeSoFJHfH8N2QQAoUXrTp66hVFApGn+DyvmcfBTCQ1/LNeSoFJHfH8N2QQAoUXrTp66hVFApGn+DyvmcfBTCQ1/LNeSoFJHfH8N2QQAoUXrTp66hVFApGn+DyvmcfBTCQ1/LNeSoFJHfH8N2QQAoUXrTp66hVFApGn+DyvmcfBTCQ1/LNeSoFJHfH8N2QQAoUXrTp66hVFApGn+DyvmcfBTCQ1/LNeSoFJHfH8N2QQAoUXrTp66hVFApGn+DyvmcfBTCQ1/LNeSoFJHfH8N2QQAoUXrTp66hVFApGn+DyvmcfBTCQ1/LNeSoFJHfH8N2QQAoUXrTp66hVFApGn+DyvmcfBTCQ1/LNeSoFJHfH8N2QQAoUXrTp66hVFApGn+DyvmcfBT" type="audio/wav">
+    </audio>
+
     <script src="/socket.io/socket.io.js"></script>
     <script>
         const socket = io();
-        let colorInterval = null;
-        let vibrateInterval = null;
-        let textColorInterval = null;
-        let alarmSound = document.getElementById('alarm');
-        let hackText = document.getElementById('hackText');
-
-        function flashyColor() {
-            const neonColors = [
-                '#39ff14','#ff073a','#f6fa0a','#0af0fa','#fd00ff',
-                '#fff600','#00ffe7','#ff00c8','#00ff22','#00d0ff'
-            ];
-            if (Math.random() > 0.5) {
-                return neonColors[Math.floor(Math.random() * neonColors.length)];
-            }
-            const c = () => Math.floor(180 + Math.random()*75);
-            return `rgb(${c()},${c()},${c()})`;
+        let effects = {
+            colorInterval: null,
+            vibrateInterval: null,
+            textColorInterval: null,
+            matrixInterval: null,
+            soundPlaying: false
+        };
+        
+        const hackText = document.getElementById('hackText');
+        const hiddenMsg = document.getElementById('hiddenMsg');
+        const alarms = [document.getElementById('alarm1'), document.getElementById('alarm2')];
+        
+        // Colores neón brillantes para el efecto
+        const neonColors = [
+            '#ff0040', '#ff4000', '#ff8000', '#ffff00', '#80ff00',
+            '#40ff00', '#00ff40', '#00ff80', '#00ffff', '#0080ff',
+            '#0040ff', '#4000ff', '#8000ff', '#ff00ff', '#ff0080'
+        ];
+        
+        // Generar color aleatorio brillante
+        function getRandomNeonColor() {
+            return neonColors[Math.floor(Math.random() * neonColors.length)];
         }
-
-        function startDrama() {
-            if (!colorInterval) {
-                colorInterval = setInterval(() => {
-                    document.body.style.background = flashyColor();
-                }, 80);
+        
+        // Crear efecto Matrix
+        function createMatrixEffect() {
+            const matrixContainer = document.getElementById('matrix');
+            const chars = '01アイウエオカキクケコサシスセソタチツテトナニヌネノハヒフヘホマミムメモヤユヨラリルレロワヲン';
+            
+            function createColumn() {
+                const column = document.createElement('div');
+                column.className = 'matrix-column';
+                column.style.left = Math.random() * 100 + 'vw';
+                column.style.animationDuration = (Math.random() * 3 + 2) + 's';
+                
+                let text = '';
+                for (let i = 0; i < 20; i++) {
+                    text += chars.charAt(Math.floor(Math.random() * chars.length)) + '<br>';
+                }
+                column.innerHTML = text;
+                
+                matrixContainer.appendChild(column);
+                
+                setTimeout(() => {
+                    if (column.parentNode) {
+                        column.parentNode.removeChild(column);
+                    }
+                }, 5000);
             }
-            if (!textColorInterval) {
-                textColorInterval = setInterval(() => {
-                    hackText.style.color = flashyColor();
-                    hackText.style.textShadow = `0 0 30px ${flashyColor()}, 0 0 60px ${flashyColor()}`;
-                }, 120);
+            
+            return setInterval(createColumn, 100);
+        }
+        
+        // Iniciar todos los efectos dramáticos
+        function startFullHackEffect() {
+            stopAllEffects(); // Detener efectos previos
+            
+            // Efecto de colores de fondo
+            effects.colorInterval = setInterval(() => {
+                document.body.style.background = `radial-gradient(circle, ${getRandomNeonColor()}, #000)`;
+            }, 100);
+            
+            // Efecto de colores de texto
+            effects.textColorInterval = setInterval(() => {
+                const color1 = getRandomNeonColor();
+                const color2 = getRandomNeonColor();
+                hackText.style.color = color1;
+                hackText.style.textShadow = `
+                    0 0 20px ${color1}, 
+                    0 0 40px ${color2}, 
+                    0 0 60px ${color1}, 
+                    0 0 80px ${color2}
+                `;
+            }, 150);
+            
+            // Vibración continua (solo móviles)
+            if (navigator.vibrate) {
+                function vibratePattern() {
+                    navigator.vibrate([200, 100, 200, 100, 500]);
+                }
+                vibratePattern();
+                effects.vibrateInterval = setInterval(vibratePattern, 1000);
             }
-            if (navigator.vibrate && !vibrateInterval) {
-                function doVibrate() { navigator.vibrate([300, 150, 300, 100]); }
-                doVibrate();
-                vibrateInterval = setInterval(doVibrate, 900);
-            }
-            if (alarmSound && alarmSound.paused) {
-                alarmSound.currentTime = 0;
-                alarmSound.loop = true;
-                alarmSound.volume = 0.45;
-                alarmSound.play().catch(() => {});
+            
+            // Efecto Matrix
+            effects.matrixInterval = createMatrixEffect();
+            
+            // Sonido de alarma
+            playAlarmSound();
+            
+            // Mostrar mensaje oculto después de 3 segundos
+            setTimeout(() => {
+                hiddenMsg.style.opacity = '0.7';
+            }, 3000);
+        }
+        
+        // Reproducir sonido de alarma
+        function playAlarmSound() {
+            if (effects.soundPlaying) return;
+            
+            effects.soundPlaying = true;
+            
+            // Intentar reproducir el primer audio
+            alarms[0].currentTime = 0;
+            alarms[0].volume = 0.6;
+            alarms[0].play().catch(() => {
+                // Si falla, intentar con el segundo
+                alarms[1].currentTime = 0;
+                alarms[1].volume = 0.6;
+                alarms[1].play().catch(() => {
+                    // Si ambos fallan, crear sonido sintético
+                    createSyntheticAlarm();
+                });
+            });
+        }
+        
+        // Crear sonido sintético usando Web Audio API
+        function createSyntheticAlarm() {
+            try {
+                const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+                const oscillator = audioContext.createOscillator();
+                const gainNode = audioContext.createGain();
+                
+                oscillator.connect(gainNode);
+                gainNode.connect(audioContext.destination);
+                
+                oscillator.frequency.setValueAtTime(800, audioContext.currentTime);
+                oscillator.frequency.exponentialRampToValueAtTime(400, audioContext.currentTime + 0.5);
+                oscillator.frequency.exponentialRampToValueAtTime(800, audioContext.currentTime + 1);
+                
+                gainNode.gain.setValueAtTime(0.3, audioContext.currentTime);
+                gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 1);
+                
+                oscillator.start(audioContext.currentTime);
+                oscillator.stop(audioContext.currentTime + 1);
+                
+                // Repetir cada segundo
+                effects.vibrateInterval = setInterval(() => {
+                    createSyntheticAlarm();
+                }, 1000);
+            } catch (e) {
+                console.log('No se pudo crear sonido sintético');
             }
         }
-
-        socket.on('startHack', startDrama);
+        
+        // Detener todos los efectos
+        function stopAllEffects() {
+            // Limpiar intervalos
+            Object.keys(effects).forEach(key => {
+                if (effects[key] && typeof effects[key].clearInterval === 'function') {
+                    clearInterval(effects[key]);
+                }
+                if (typeof effects[key] === 'number') {
+                    clearInterval(effects[key]);
+                }
+                effects[key] = null;
+            });
+            
+            // Detener sonidos
+            alarms.forEach(audio => {
+                audio.pause();
+                audio.currentTime = 0;
+            });
+            effects.soundPlaying = false;
+            
+            // Restaurar estilos
+            document.body.style.background = '#000';
+            hackText.style.color = '#fff';
+            hackText.style.textShadow = '0 0 20px #fff, 0 0 40px #ff0040';
+            
+            // Limpiar Matrix
+            document.getElementById('matrix').innerHTML = '';
+            
+            // Ocultar mensaje
+            hiddenMsg.style.opacity = '0';
+        }
+        
+        // Efectos individuales
+        function flashColors() {
+            stopAllEffects();
+            effects.colorInterval = setInterval(() => {
+                document.body.style.background = `radial-gradient(circle, ${getRandomNeonColor()}, #000)`;
+            }, 200);
+            
+            setTimeout(stopAllEffects, 5000); // Detener después de 5 segundos
+        }
+        
+        function vibrateOnly() {
+            if (navigator.vibrate) {
+                navigator.vibrate([300, 200, 300, 200, 300]);
+            }
+        }
+        
+        function soundOnly() {
+            playAlarmSound();
+            setTimeout(() => {
+                alarms.forEach(audio => {
+                    audio.pause();
+                    audio.currentTime = 0;
+                });
+                effects.soundPlaying = false;
+            }, 3000); // Detener después de 3 segundos
+        }
+        
+        // Eventos del socket
+        socket.on('startHack', startFullHackEffect);
+        socket.on('stopHack', stopAllEffects);
+        socket.on('flashColors', flashColors);
+        socket.on('vibrate', vibrateOnly);
+        socket.on('playSound', soundOnly);
+        
+        // Detener efectos al salir de la página
+        window.addEventListener('beforeunload', stopAllEffects);
+        
+        // Permitir interacción para reproducir audio (requerimiento de navegadores)
+        document.addEventListener('click', () => {
+            // Preparar contexto de audio si es necesario
+            alarms.forEach(audio => {
+                audio.load();
+            });
     </script>
 </body>
 </html>

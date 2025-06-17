@@ -1,12 +1,32 @@
 {
   "name": "DemoSeguridad",
-  "version": "1.0.0",
+  "version": "2.0.0",
+  "description": "Demo educativa sobre los peligros de escanear códigos QR desconocidos",
   "main": "server.js",
   "scripts": {
-    "start": "node server.js"
+    "start": "node server.js",
+    "dev": "node server.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
   },
+  "keywords": [
+    "security",
+    "qr-code",
+    "demo",
+    "education",
+    "websocket",
+    "express"
+  ],
+  "author": "Tu Nombre",
+  "license": "MIT",
   "dependencies": {
     "express": "^4.18.2",
     "socket.io": "^4.7.5"
+  },
+  "engines": {
+    "node": ">=14.0.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "tu-repositorio-aqui"
   }
 }

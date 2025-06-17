@@ -27,13 +27,47 @@ app.get('/hack', (req, res) => {
     res.sendFile(path.join(__dirname, 'public', 'index.html'));
 });
 
+// Nuevas rutas de control
+app.get('/stop', (req, res) => {
+    res.sendFile(path.join(__dirname, 'public', 'stop.html'));
+});
+
 io.on('connection', (socket) => {
-    console.log('New client connected');
+    console.log('New client connected:', socket.id);
+    
+    // Evento principal de hackeo
     socket.on('hack', () => {
+        console.log('Hack iniciado por:', socket.id);
         io.emit('startHack');
+    });
+    
+    // Evento para detener el hackeo
+    socket.on('stopHack', () => {
+        console.log('Hack detenido por:', socket.id);
+        io.emit('stopHack');
+    });
+    
+    // Efectos individuales
+    socket.on('flashColors', () => {
+        io.emit('flashColors');
+    });
+    
+    socket.on('vibrate', () => {
+        io.emit('vibrate');
+    });
+    
+    socket.on('playSound', () => {
+        io.emit('playSound');
+    });
+    
+    socket.on('disconnect', () => {
+        console.log('Client disconnected:', socket.id);
     });
 });
 
 server.listen(PORT, () => {
     console.log(`Servidor corriendo en http://localhost:${PORT}`);
+    console.log(`Panel de control: http://localhost:${PORT}/`);
+    console.log(`Código QR: http://localhost:${PORT}/qr`);
+    console.log(`Demo hackeo: http://localhost:${PORT}/hack`);
 });
