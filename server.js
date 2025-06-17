@@ -9,14 +9,20 @@ const io = socketIo(server);
 
 const PORT = process.env.PORT || 3000;
 
+// Sirve archivos estáticos de /public
 app.use(express.static(path.join(__dirname, 'public')));
 
+// Panel de control SOLO en "/"
 app.get('/', (req, res) => {
     res.sendFile(path.join(__dirname, 'public', 'control.html'));
 });
+
+// QR en "/qr"
 app.get('/qr', (req, res) => {
     res.sendFile(path.join(__dirname, 'public', 'qr.html'));
 });
+
+// Página de hackeo en "/hack"
 app.get('/hack', (req, res) => {
     res.sendFile(path.join(__dirname, 'public', 'index.html'));
 });

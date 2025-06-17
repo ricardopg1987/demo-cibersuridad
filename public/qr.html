@@ -24,7 +24,7 @@
     <canvas id="qrcode"></canvas>
     <div class="url" id="qrurl"></div>
     <script>
-        // SIEMPRE usa location.origin para que funcione local o en render
+        // location.origin SIEMPRE lleva al dominio correcto (Render o local)
         const qrUrl = location.origin + "/hack";
         document.getElementById('qrurl').textContent = qrUrl;
         new QRious({

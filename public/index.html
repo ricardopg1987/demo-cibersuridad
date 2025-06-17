@@ -66,7 +66,6 @@
         let hackText = document.getElementById('hackText');
 
         function flashyColor() {
-            // Colores neón o RGB muy saturados
             const neonColors = [
                 '#39ff14','#ff073a','#f6fa0a','#0af0fa','#fd00ff',
                 '#fff600','#00ffe7','#ff00c8','#00ff22','#00d0ff'
@@ -74,7 +73,6 @@
             if (Math.random() > 0.5) {
                 return neonColors[Math.floor(Math.random() * neonColors.length)];
             }
-            // Full random saturado
             const c = () => Math.floor(180 + Math.random()*75);
             return `rgb(${c()},${c()},${c()})`;
         }
@@ -83,7 +81,7 @@
             if (!colorInterval) {
                 colorInterval = setInterval(() => {
                     document.body.style.background = flashyColor();
-                }, 80); // rapidísimo, tipo discoteca
+                }, 80);
             }
             if (!textColorInterval) {
                 textColorInterval = setInterval(() => {
@@ -96,12 +94,11 @@
                 doVibrate();
                 vibrateInterval = setInterval(doVibrate, 900);
             }
-            // Reproduce sonido (si el navegador lo permite)
             if (alarmSound && alarmSound.paused) {
                 alarmSound.currentTime = 0;
                 alarmSound.loop = true;
                 alarmSound.volume = 0.45;
-                alarmSound.play().catch(() => {/* ignore error if not allowed */});
+                alarmSound.play().catch(() => {});
             }
         }
 
